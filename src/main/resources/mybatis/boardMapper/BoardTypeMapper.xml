@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oac.project.system.board.mapper.BoardTypeMapper">
+
+    <resultMap id="allBoardType" type="BoardType">
+        <id property="boardTypeId" column="board_type_id"/>
+        <result property="boardName" column="board_name"/>
+    </resultMap>
+
+    <!--List<BoardType> getAllBoardType();-->
+    <select id="getAllBoardType" resultMap="allBoardType">
+        SELECT board_type_id,board_name FROM sys_board_type
+    </select>
+
+</mapper>

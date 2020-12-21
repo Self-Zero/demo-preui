@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="utf-8">
+	<title>首页一</title>
+	<meta name="renderer" content="webkit">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<link rel="stylesheet" href="../../../component/layui/css/layui.css" media="all">
+	<style>
+
+		.top-panel {
+			border-radius: 4px;
+			text-align: center;
+		}
+
+
+		.top-panel > .layui-card-body{
+			height: 60px;
+		}
+		.top-panel-number{
+			line-height:60px;
+			font-size: 30px;
+			border-right:1px solid #eceff9;
+		}
+		.top-panel-tips{
+			line-height:30px;
+			font-size: 12px
+		}
+
+		.pear-container {
+			background-color: whitesmoke;
+			margin: 10px;
+		}
+	</style>
+</head>
+<body class="pear-container">
+<div>
+	<div class="layui-row layui-col-space10">
+		<div class="layui-col-xs6 layui-col-md3">
+			<div class="layui-card top-panel">
+				<div class="layui-card-header">本年收账</div>
+				<div class="layui-card-body">
+					<div class="layui-row layui-col-space5">
+						<div class="layui-col-xs8 layui-col-md8 top-panel-number">
+							<span th:text="${yearSumMoney}+'￥'"></span>
+						</div>
+						<div class="layui-col-xs4 layui-col-md4 top-panel-tips">
+							<span th:if="${yearSumMoney} gt ${lastYearSumMoney}">
+								比去年 <a style="color: #1aa094"><br>▲<span th:text="${yearSumPercentage}"></span></a><br>
+							</span>
+							<span th:if="${yearSumMoney} lt ${lastYearSumMoney}">
+								比去年 <a style="color: #bd3004"><br>▼<span th:text="${yearSumPercentage}"></span></a><br>
+							</span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+		<div class="layui-col-xs12 layui-col-md3">
+
+			<div class="layui-card top-panel">
+				<div class="layui-card-header">本月收账</div>
+				<div class="layui-card-body">
+					<div class="layui-row layui-col-space5">
+						<div class="layui-col-xs9 layui-col-md9 top-panel-number">
+							<span th:text="${monthSumMoney}+'￥'"></span>
+						</div>
+						<div class="layui-col-xs3 layui-col-md3 top-panel-tips">
+							<span th:if="${monthSumMoney} gt ${lstMonthSumMoney}">
+								比上月 <a style="color: #1aa094"><br>▲<span th:text="${monthSumPercentage}"></span></a><br>
+							</span>
+							<span th:if="${monthSumMoney} lt ${lstMonthSumMoney}">
+								比上月 <a style="color: #bd3004"><br>▼<span th:text="${monthSumPercentage}"></span></a><br>
+							</span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+		<div class="layui-col-xs6 layui-col-md3">
+			<div class="layui-card top-panel">
+				<div class="layui-card-header">本年支出</div>
+				<div class="layui-card-body">
+					<div class="layui-row layui-col-space5">
+						<div class="layui-col-xs8 layui-col-md8 top-panel-number">
+							<span th:text="${yearPaySumMoney}+'￥'"></span>
+						</div>
+
+						<div class="layui-col-xs4 layui-col-md4 top-panel-tips">
+							<span th:if="${yearPaySumMoney} gt ${lastYearPaySumMoney}">
+								比去年 <a style="color: #1aa094"><br>▲<span th:text="${yearPayPercentage}"></span></a><br>
+							</span>
+							<span th:if="${yearPaySumMoney} lt ${lastYearPaySumMoney}">
+								比去年 <a style="color: #bd3004"><br>▼<span th:text="${yearPayPercentage}"></span></a><br>
+							</span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+		<div class="layui-col-xs12 layui-col-md3">
+
+			<div class="layui-card top-panel">
+				<div class="layui-card-header">本月支出</div>
+				<div class="layui-card-body">
+					<div class="layui-row layui-col-space5">
+						<div class="layui-col-xs9 layui-col-md9 top-panel-number">
+							<span th:text="${monthPaySumMoney}+'￥'">
+						</div>
+						<div class="layui-col-xs3 layui-col-md3 top-panel-tips">
+							<span th:if="${monthPaySumMoney} gt ${lastMonthPaySumMoney}">
+								比上月 <a style="color: #1aa094"><br>▲<span th:text="${monthPayPercentage}"></span></a><br>
+							</span>
+							<span th:if="${monthPaySumMoney} lt ${lastMonthPaySumMoney}">
+								比上月 <a style="color: #bd3004"><br>▼<span th:text="${monthPayPercentage}"></span></a><br>
+							</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="layui-row layui-col-space15">
+		<div class="layui-col-xs12 layui-col-md9">
+			<div id="echarts-records" style="background-color:#ffffff;min-height:600px;padding: 10px"></div>
+		</div>
+		<div class="layui-col-xs12 layui-col-md3">
+			<div id="echarts-pies" style="background-color:#ffffff;min-height:600px;padding: 10px"></div>
+		</div>
+	</div>
+
+</div>
+<!--</div>-->
+<script src="../../../component/layui/layui.js" charset="utf-8"></script>
+<script src="../js/lay-config.js?v=1.0.4" charset="utf-8"></script>
+<script>
+    layui.use(['layer', 'echarts'], function () {
+        var $ = layui.jquery,
+            layer = layui.layer,
+            echarts = layui.echarts;
+
+        /**
+         * 报表功能
+         */
+        var echartsRecords = echarts.init(document.getElementById('echarts-records'), 'walden');
+
+        var colors = ['#5793f3', '#d14a61', '#675bba'];
+
+        var optionRecords = {
+            title: {
+                text: '收支详情报表图'
+            },
+            color: colors,
+
+            tooltip: {
+                trigger: 'none',
+                axisPointer: {
+                    type: 'cross'
+                }
+            },
+            legend: {
+                data:['本年收账', '本年支出']
+            },
+            grid: {
+                top: 70,
+                bottom: 50
+            },
+            xAxis: [
+                {
+                    type: 'category',
+                    axisTick: {
+                        alignWithLabel: true
+                    },
+                    axisLine: {
+                        onZero: false,
+                        lineStyle: {
+                            color: colors[1]
+                        }
+                    },
+                    axisPointer: {
+                        label: {
+                            formatter: function (params) {
+                                return '支出金额  ' + params.value
+                                    + (params.seriesData.length ? '：' + params.seriesData[0].data : '');
+                            }
+                        }
+                    },
+                    data: []
+                },
+                {
+                    type: 'category',
+                    axisTick: {
+                        alignWithLabel: true
+                    },
+                    axisLine: {
+                        onZero: false,
+                        lineStyle: {
+                            color: colors[0]
+                        }
+                    },
+                    axisPointer: {
+                        label: {
+                            formatter: function (params) {
+                                return '收账金额  ' + params.value
+                                    + (params.seriesData.length ? '：' + params.seriesData[0].data : '');
+                            }
+                        }
+                    },
+                    data: []
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value'
+                }
+            ],
+            series: [
+                {
+                    name: '本年收账',
+                    type: 'line',
+                    xAxisIndex: 1,
+                    smooth: true,
+                    data: []
+                },
+                {
+                    name: '本年支出',
+                    type: 'line',
+                    smooth: true,
+                    data: []
+                }
+            ]
+        };
+        echartsRecords.setOption(optionRecords);
+
+        $.ajax({
+            type: "post",
+            async: true,            //异步请求（同步请求将会锁住浏览器，用户其他操作必须等待请求完成才可以执行）
+            url: "/system/echarts1/show1",    //请求发送到TestServlet处
+            data: {},
+            dataType: "json",        //返回数据形式为json
+            success: function (result) {
+                //请求成功时执行该函数内容，result即为服务器返回的json对象
+				let names = [];
+				let moneys = [];
+				let pays = [];
+                if (result) {
+                    for (var i in result.data) {
+                        names.push(result.data[i].month);
+                        moneys.push(result.data[i].money);
+                        pays.push(result.data[i].pay)
+                    }
+                    echartsRecords.hideLoading();     // 隐藏加载动画
+                    echartsRecords.setOption({        // 加载数据图表
+                        xAxis: [
+                            		{
+                            			data: names
+                        			}, {
+                            			data: names
+                        			}
+                        		],
+                        series: [
+									{
+                            			data: moneys
+                        			},{
+                            			data: pays
+                        			}
+                        		]
+                    });
+                }
+
+            },
+            error: function (errorMsg) {
+                //请求失败时执行该函数
+                alert("图表请求数据失败!");
+                myChart.hideLoading();
+            }
+        })
+
+        /**
+         * 玫瑰图表
+         */
+        var echartsPies = echarts.init(document.getElementById('echarts-pies'), 'walden');
+        var optionPies = {
+            title: {
+                text: '收入分析表',
+                left: 'center'
+            },
+            tooltip: {
+                trigger: 'item',
+                formatter: '{a} <br/>{b} : {c} ({d}%)'
+            },
+			color:['#6f87bf', '#7084a2', '#5e6787'],
+            legend: {
+                orient: 'vertical',
+                left: 'left',
+                data: [],
+                textStyle: {
+                    fontSize: 16	    //文字的字体大小
+
+                }
+            },
+            series: [
+                {
+                    name: '本年收款金额',
+                    type: 'pie',
+                    radius: ['10%','60%'],
+                    //radius: '60%',
+                    center: ['50%', '60%'],
+                    data: [],
+                    emphasis: {
+                        itemStyle: {
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    }
+                }
+            ]
+        };
+        echartsPies.setOption(optionPies);
+        echartsPies.showLoading();    //数据加载完之前先显示一段简单的loading动画
+
+        $.ajax({
+            type: "post",
+            async: true,            //异步请求（同步请求将会锁住浏览器，用户其他操作必须等待请求完成才可以执行）
+            url: "/system/echarts1/show2",    //请求发送到TestServlet处
+            data: {},
+            dataType: "json",        //返回数据形式为json
+            success: function (result) {
+                //请求成功时执行该函数内容，result即为服务器返回的json对象
+                if (result) {
+					var name = [];
+					var value = [];
+                    for (var i in result.data) {
+                        name.push(result.data[i].name);
+                        value.push({
+                            value : result.data[i].money,
+                            name : result.data[i].name,
+						})
+                    }
+                    echartsPies.hideLoading();     // 隐藏加载动画
+                    echartsPies.setOption({        // 加载数据图表
+                        legend: {
+                            data: name
+                        },
+                        series: [ {
+							//data:[{value:39239178,name:'整梯'},{value:227889,name:'护栏'},{value:308374,name:'铺板'},{value:165650,name:'铺板+护栏'}],
+                            data: value
+                        } ]
+                    });
+                }
+            },
+            error: function (errorMsg) {
+                //请求失败时执行该函数
+                alert("图表请求数据失败!");
+                echartsPies.hideLoading();
+            }
+        })
+
+        // echarts 窗口缩放自适应
+        window.onresize = function () {
+            echartsRecords.resize();
+        }
+    });
+</script>
+</body>
+</html>

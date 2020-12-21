@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <link href="../../component/layui/css/layui.css" rel="stylesheet"/>
+    <link href="../../admin/css/pearCommon.css" rel="stylesheet"/>
+</head>
+<body>
+<body class="pear-container">
+<div class="layui-card">
+    <div class="layui-card-body">
+        <form class="layui-form" action="">
+            <div class="layui-form-item">
+                <label class="layui-form-label">客户名称</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="customerNameParam" id="customerNameParam" class="layui-input">
+                </div>
+                <label class="layui-form-label">订单名称</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="orderNameParam" id="orderNameParam" class="layui-input">
+                </div>
+                <button class="pear-btn pear-btn-md pear-btn-primary" lay-submit lay-filter="order-query">
+                    <i class="layui-icon layui-icon-search"></i>
+                    查询
+                </button>
+                <button type="reset" class="pear-btn pear-btn-md">
+                    <i class="layui-icon layui-icon-refresh"></i>
+                    重置
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="layui-card">
+    <div class="layui-card-body">
+        <table id="order-table" lay-filter="order-table"></table>
+    </div>
+</div>
+</body>
+
+<script type="text/html" id="user-toolbar">
+    <button class="pear-btn pear-btn-primary pear-btn-md" lay-event="add">
+        <i class="layui-icon layui-icon-add-1"></i>
+        新增
+    </button>
+    <button class="pear-btn pear-btn-danger pear-btn-md" lay-event="batchRemove">
+        <i class="layui-icon layui-icon-delete"></i>
+        删除
+    </button>
+</script>
+
+<script type="text/html" id="order-bar">
+    <button class="layui-btn layui-btn-normal layui-btn-sm" lay-event="edit"><i class="layui-icon"></i></button>
+    <button class="layui-btn layui-btn-sm" lay-event="send"><i class="layui-icon"></i></button>
+    <button class="layui-btn pear-btn-danger layui-btn-sm" lay-event="remove"><i class="layui-icon"></i></button>
+</script>
+
+
+<script type="text/html" id="order-state">
+    {{#if (d.orderState == 1) { }}
+    <button class="pear-btn pear-btn-success pear-btn-sm" plain>已完工</button>
+    {{# }else if(d.orderState == 0){ }}
+    <button class="pear-btn pear-btn-danger pear-btn-sm" plain>未完工</button>
+    <span></span>
+    {{# } }}
+</script>
+<script type="text/html" id="order-send">
+    {{#if (d.sendDate == null) { }}
+    <button class="pear-btn pear-btn-danger pear-btn-sm" plain>未发货</button>
+    {{# }else if(d.orderState != null){ }}
+    <button class="pear-btn pear-btn-success pear-btn-sm" plain>已发货</button>
+    <span></span>
+    {{# } }}
+</script>
+
+
+<script src="../../component/layui/layui.js"></script>
+<script>
+    layui.use(['table', 'form', 'jquery'], function () {
+        let table = layui.table;
+        let form = layui.form;
+        let $ = layui.jquery;
+        let MODULE_PATH = "/view/system/order/";
+
+        // console.log($("#userId").val());
+
+        // 定义table表头
+        let cols = [
+            [
+                {type: 'checkbox'},
+                {title: 'id', field: 'orderId', align: 'center', width: 50},
+                {title: '发货地址', field: 'cityName', align: 'center', width: 120},
+                {title: '订单名称', field: 'orderName', align: 'center', width: 200},
+                {title: '产品材质', field: 'materialName', align: 'center', width: 100},
+                {title: '产品类型', field: 'modeName', align: 'center', width: 120},
+                {title: '柱子型号', field: 'battenVersionName', align: 'center', width: 80},
+                {title: '订单状态', field: 'orderState', align: 'center', templet: '#order-state', width: 120},
+                {title: '物流状态', field: 'sendDate', align: 'center', templet: '#order-send', width: 120},
+                {title: '客户姓名', field: 'customerName', align: 'center', width: 120},
+                {title: '联系电话', field: 'phone', align: 'center', width: 140},
+                {title: '创建日期', field: 'created', align: 'center', Width: 150,},
+                {title: '操作', toolbar: '#order-bar', align: 'center', width: 200}
+            ]
+        ]
+
+        // table 订单加载数据
+        table.render({
+            elem: '#order-table',
+            url: '/system/order/select',
+            page: true,
+            cols: cols,
+            limit: 10,           //限制每一页的行数
+            skin: 'line',
+            toolbar: '#user-toolbar',
+            defaultToolbar: [{
+                layEvent: 'refresh',
+                icon: 'layui-icon-refresh',
+            }, 'filter', 'print', 'exports']
+        });
+
+        // 第二分部的 button 标签功能
+        table.on('tool(order-table)', function (obj) {
+            if (obj.event === 'remove') {
+                window.remove(obj);
+            } else if (obj.event === 'edit') {
+                window.edit(obj);
+            } else if (obj.event === 'send') {
+                window.send(obj);
+            }
+        });
+
+        // 第一分部的 button 标签功能
+        table.on('toolbar(order-table)', function (obj) {
+            if (obj.event === 'add') {
+                window.add();
+            } else if (obj.event === 'refresh') {
+                window.refresh();
+            } else if (obj.event === 'batchRemove') {
+                window.batchRemove(obj);
+            }
+        });
+
+        // 查询订单JS
+        form.on('submit(order-query)', function (obj) {
+            // 从新加载order-table 传入page = 1,搜索的条件
+            table.reload('order-table', {
+                page: {
+                    curr: 1
+                },
+                where: obj.field
+            })
+            return false;
+        });
+
+        form.on('switch(user-enable)', function (obj) {
+            layer.tips(this.value + ' ' + this.name + '：' + obj.elem.checked, obj.othis);
+        });
+
+        // 新增订单JS
+        window.add = function () {
+            layer.open({
+                type: 2,
+                title: '新增',
+                shade: 0.1,
+                area: ['950px', '600px'],
+                content: MODULE_PATH + 'add',
+            });
+        }
+
+        // 编辑订单JS
+        window.edit = function (obj) {
+            layer.open({
+                type: 2,
+                title: '编辑',
+                data: obj,
+                shade: 0.1,
+                area: ['950px', '600px'],
+                content: MODULE_PATH + 'edit?orderId=' + obj.data['orderId'],
+            });
+        }
+
+        // 订单发货JS
+        window.send = function (obj) {
+            if (obj.data['orderState'] == 1 && obj.data['sendDate'] == null) {
+                layer.open({
+                    type: 2,
+                    title: '发货',
+                    data: obj,
+                    shade: 0.1,
+                    area: ['500px', '450px'],
+                    content: MODULE_PATH + 'send?orderId=' + obj.data['orderId'],
+                });
+            }else if(obj.data['orderState'] == 1 && obj.data['sendDate'] != null){
+                layer.msg("该订单已发货", {icon: 7, time: 1000});
+            } else {
+                layer.msg("该订单未完工", {icon: 5, time: 1000});
+            }
+        }
+
+        // 删除订单JS
+        window.remove = function (obj) {
+            layer.confirm('确定要删除该订单', {icon: 2, title: '提示'}, function (index) {
+                layer.close(index);
+                let loading = layer.load();
+                $.ajax({
+                    url: "/system/order/remove/" + obj.data['orderId'],
+                    dataType: 'json',
+                    type: 'POST',
+                    success: function (result) {
+                        layer.close(loading);
+                        if (result.success) {
+                            layer.msg(result.msg, {icon: 1, time: 1000}, function () {
+                                obj.del();
+                                table.reload("order-table");
+                            });
+                        } else {
+                            layer.msg(result.msg, {icon: 3, time: 1000});
+                        }
+                    }
+                })
+            });
+        }
+
+        // 批量删除订单JS
+        window.batchRemove = function (obj) {
+            let data = table.checkStatus(obj.config.id).data;
+            if (data.length === 0) {
+                layer.msg("未选中数据", {icon: 4, time: 1000});
+                return false;
+            }
+            let ids = "";
+            for (let i = 0; i < data.length; i++) {
+                ids += data[i].orderId + ",";
+            }
+            ids = ids.substr(0, ids.length - 1);
+            layer.confirm('确定要删除这些订单', {icon: 2, title: '提示'}, function (index) {
+                layer.close(index);
+                let loading = layer.load();
+                $.ajax({
+                    url: "/system/order/batchRemove/" + ids,
+                    dataType: 'json',
+                    type: 'delete',
+                    success: function (result) {
+                        layer.close(loading);
+                        if (result.success) {
+                            layer.msg(result.msg, {icon: 1, time: 1000}, function () {
+                                table.reload('order-table');
+                            });
+                        } else {
+                            layer.msg(result.msg, {icon: 3, time: 1000});
+                        }
+                    }
+                })
+            });
+        }
+
+        // 刷新table
+        window.refresh = function (param) {
+            table.reload('order-table');
+        }
+
+    })
+</script>
+</body>
+</html>

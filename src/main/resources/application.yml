@@ -1,0 +1,61 @@
+
+server:
+  port: 8080
+
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driverClassName: com.mysql.jdbc.Driver
+    driver-class-name: com.mysql.jdbc.Driver
+    platform: mysql
+    url: jdbc:mysql://47.93.7.164/oacwood?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&&serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+    initialSize: 5
+    minIdle: 5
+    maxActive: 20
+    maxWait: 60000
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: SELECT1FROMDUAL
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    filters: stat,wall,log4j
+    logSlowSql: true
+mybatis:
+  # 搜索指定包别名
+  typeAliasesPackage: com.oac.project.system.*.domain
+  # 配置mapper的扫描，找到所有的mapper.xml映射文件
+  mapperLocations: classpath:mybatis/**/*Mapper.xml
+  # 加载全局的配置文件
+  configLocation: classpath:mybatis/mybatis-config.xml
+
+fdfs:
+  so-timeout: 100000 #socket连接超时时长
+  connect-timeout: 100000 #连接tracker服务器超时时长
+  #tracker-list: 192.168.217.134:22122  #地址，支持多个（集群）
+  tracker-list: 47.93.7.164:22122
+  pool:
+    jmx-enabled: false
+
+upload:
+  # base-url: http://192.168.217.134/
+  base-url: http://47.93.7.164:8888/
+  allow-types:
+    - image/jpg
+    - image/jpeg
+    - image/png
+    - image/bmp
+    - image/gif
+# logging:
+  # level:
+    # com.oac.project.system.order.mapper: debug
+    # com.oac.project.system.batten.mapper: debug
+    # com.oac.project.system.board.mapper: debug
+    # com.oac.project.system.city.mapper: debug
+    # com.oac.project.system.customer.mapper: debug
+    # com.oac.project.system.logistics.mapper: debug
+    # com.oac.project.system.material.mapper: debug
+    # com.oac.project.system.mode.mapper: debug
+    # com.oac.project.system.user.mapper: debug

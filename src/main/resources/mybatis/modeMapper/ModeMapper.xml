@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oac.project.system.mode.mapper.ModeMapper">
+
+    <resultMap id="allMode" type="Mode">
+        <id property="modeId" column="mode_id"/>
+        <result property="modeName" column="mode_name"></result>
+    </resultMap>
+
+    <!--List<Mode> getAllMode();-->
+    <select id="getAllMode" resultMap="allMode">
+        select mode_id,mode_name from sys_mode
+    </select>
+
+</mapper>

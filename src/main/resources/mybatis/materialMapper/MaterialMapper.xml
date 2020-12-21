@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oac.project.system.material.mapper.MaterialMapper">
+
+    <resultMap id="allMaterial" type="Material">
+        <id property="materialId" column="material_id"/>
+        <result property="materialName" column="material_name"></result>
+    </resultMap>
+
+    <!--List<Material> getAllMaterial();-->
+    <select id="getAllMaterial" resultMap="allMaterial">
+        select material_id,material_name from sys_material
+    </select>
+
+</mapper>

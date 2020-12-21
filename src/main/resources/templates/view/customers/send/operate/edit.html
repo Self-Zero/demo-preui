@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../../admin/css/pearCommon.css"/>
+    <link rel="stylesheet" href="../../../component/layui/css/layui.css"/>
+</head>
+<body>
+<form class="layui-form" action="">
+    <div class="mainBox">
+        <div class="main-container">
+            <div class="main-container">
+                <input type="hidden" name="logisticsId" th:value="${logistics.logisticsId}">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">客户地址</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="customerAddress" th:value="${logistics.customerAddress}"
+                               lay-verify="title" autocomplete="off" readonly="readonly" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">订单名称</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="orderName" th:value="${logistics.orderName}" lay-verify="title"
+                               autocomplete="off" readonly="readonly" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">客户名称</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="customerName" th:value="${logistics.customerName}"
+                               lay-verify="title" autocomplete="off" readonly="readonly" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">联系电话</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="customerPhone" th:value="${logistics.customerPhone}"
+                               lay-verify="title" autocomplete="off" readonly="readonly" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                <label class="layui-form-label">物流公司</label>
+                <div class="layui-input-block">
+                    <select name="logisticsCompanyId">
+                        <option value="">请选择物流公司</option>
+                        <option th:each="small,userStat:${allLogisticsCompany}" th:value="${small.companyId}"
+                                th:text="${small.companyName}"
+                                th:selected="${small.companyId}eq${logistics.logisticsCompanyId}"></option>
+                    </select>
+                </div>
+            </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">物流电话</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="companyPhone" th:value="${logistics.companyPhone}" lay-verify="title"
+                               autocomplete="off" placeholder="请输入物流电话" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">物流件数</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="logisticsNumber" th:value="${logistics.logisticsNumber}"
+                               lay-verify="title" autocomplete="off" placeholder="请输入物流件数" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">物流费用</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="logisticsPrice" th:value="${logistics.logisticsPrice}"
+                               lay-verify="title" autocomplete="off" placeholder="请输入物流费用" class="layui-input">
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="bottom">
+        <div class="button-container">
+            <button type="submit" class="layui-btn layui-btn-normal layui-btn-sm" lay-submit=""
+                    lay-filter="send-save">
+                <i class="layui-icon layui-icon-ok"></i>
+                提交
+            </button>
+            <button type="reset" class="layui-btn layui-btn-primary layui-btn-sm">
+                <i class="layui-icon layui-icon-refresh"></i>
+                重置
+            </button>
+        </div>
+    </div>
+</form>
+<script src="../../../component/layui/layui.js"></script>
+<script>
+    layui.use(['form', 'jquery'], function () {
+        let form = layui.form;
+        let $ = layui.jquery;
+
+        form.on('submit(send-save)', function (data) {
+            /*let roleIds = "";
+            $('input[type=checkbox]:checked').each(function () {
+                roleIds += $(this).val() + ",";
+            });
+            roleIds = roleIds.substr(0, roleIds.length - 1);
+            data.field.roleIds = roleIds;*/
+
+            $.ajax({
+                url: '/system/logistics/save',
+                data: JSON.stringify(data.field),
+                dataType: 'json',
+                contentType: 'application/json',
+                type: 'post',
+                success: function (result) {
+                    if (result.success) {
+                        layer.msg(result.msg, {icon: 1, time: 1000}, function () {
+                            parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+                            parent.layui.table.reload("send-table");
+                        });
+                    } else {
+                        layer.msg(result.msg, {icon: 2, time: 1000});
+                    }
+                }
+            })
+            return false;
+        });
+    })
+</script>
+<script>
+</script>
+</body>
+</html>

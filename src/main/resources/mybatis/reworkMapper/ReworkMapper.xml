@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oac.project.system.rework.mapper.ReworkMapper">
+
+    <resultMap id="allRework" type="Rework">
+        <id property="reworkId" column="rework_id"/>
+        <result property="orderId" column="order_id"/>
+        <result property="orderName" column="order_name"/>
+    </resultMap>
+
+    <!--List<Rework> getAllReworkOrderInfo(Integer page, Integer limit, String customerCondition, String orderCondition);-->
+    <select id="getAllReworkOrderInfo" resultMap="allRework">
+        SELECT
+          rework_id,order_id,order_name
+        FROM sys_rework
+        <if test="customerCondition != null and orderCondition == null">
+            WHERE order_name LIKE "%"#{customerCondition}"%"
+        </if>
+        <if test="page != null and limit != ''">
+            LIMIT #{page},#{limit}
+        </if>
+    </select>
+
+    <!--Long getCount(String customerCondition, String orderCondition);-->
+    <select id="getCount" resultType="Long">
+        SELECT COUNT(rework_id) FROM sys_rework
+        <if test="customerCondition == null and orderCondition != null">
+            WHERE order_name LIKE "%"#{customerCondition}"%"
+        </if>
+    </select>
+
+    <!--Integer saveReworkOrderInfo(Rework rework);-->
+    <insert id="saveReworkOrderInfo" parameterType="Rework">
+        INSERT INTO sys_rework(order_id,order_name) VALUE(#{orderId},#{orderName})
+    </insert>
+</mapper>

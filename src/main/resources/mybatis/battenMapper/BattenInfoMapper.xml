@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oac.project.system.batten.mapper.BattenInfoMapper">
+
+    <resultMap id="allBattenInfo" type="BattenInfo">
+        <id property="battenInfoId" column="batten_info_id"/>
+        <result property="materialId" column="material_id"/>
+        <result property="battenTypeId" column="batten_type_id"/>
+        <result property="battenNumber" column="batten_number"/>
+        <result property="battenPrice" column="batten_price"/>
+        <result property="battenTotal" column="batten_total"/>
+        <result property="remarks" column="remarks"/>
+        <result property="created" column="created"/>
+        <result property="createdby" column="createdby"/>
+        <result property="updated" column="updated"/>
+        <result property="updatedby" column="updatedby"/>
+    </resultMap>
+
+    <!--&gt;大于====================&lt;小于-->
+    <!--List<BattenInfo> getAllBattenInfo();date_add(#{endDate}, interval 1 day)天数+1 选中的日期都是00:00:00-->
+    <select id="getAllBattenInfo" resultMap="allBattenInfo">
+        SELECT
+        batten_info_id,material_id,batten_type_id,batten_number,batten_price,batten_total,remarks,created,createdby,updated,updatedby
+        FROM sys_batten_info
+        <if test="startDate == null and endDate == null">
+            ORDER BY created DESC
+        </if>
+        <if test="startDate != null and endDate == null">
+            WHERE created &gt; #{startDate} ORDER BY created DESC
+        </if>
+        <if test="startDate == null and endDate != null">
+            WHERE created &lt; date_add(#{endDate}, interval 1 day) ORDER BY created DESC
+        </if>
+        <if test="startDate != null and endDate != null">
+            WHERE created BETWEEN #{startDate} AND date_add(#{endDate}, interval 1 day) ORDER BY created DESC
+        </if>
+        <if test="page != null and limit != null">
+            LIMIT #{page},#{limit}
+        </if>
+    </select>
+
+    <!--Long getCount(String startDate, String endDate);-->
+    <select id="getCount" resultType="Long">
+        SELECT COUNT(batten_info_id) FROM sys_batten_info
+        <if test="startDate != null and endDate != null">
+            WHERE created BETWEEN #{startDate} AND date_add(#{endDate}, interval 1 day)
+        </if>
+        <if test="startDate != null and endDate == null">
+            WHERE created &gt; #{startDate}
+        </if>
+        <if test="startDate == null and endDate != null">
+            WHERE created &lt; date_add(#{endDate}, interval 1 day)
+        </if>
+    </select>
+
+    <!--Integer saveBattenInfo(BattenInfo battenInfo);-->
+    <insert id="saveBattenInfo" parameterType="BattenInfo">
+        INSERT INTO sys_batten_info(material_id,batten_type_id,batten_number,batten_price,batten_total,remarks,created,createdby,updated,updatedby)
+        VALUES(#{materialId},
+               #{battenTypeId},
+               #{battenNumber},
+               #{battenPrice},
+               #{battenTotal},
+               #{remarks},
+               now(),
+               #{createdby},
+               now(),
+               #{updatedby})
+    </insert>
+
+    <!--Integer updateBattenInfo(BattenInfo battenInfo);-->
+    <update id="updateBattenInfo" parameterType="BattenInfo">
+            UPDATE sys_batten_info SET material_id=#{materialId},
+                                      batten_type_id=#{battenTypeId},
+                                      batten_number=#{battenNumber},
+                                      batten_price=#{battenPrice},
+                                      batten_total=#{battenTotal},
+                                      remarks=#{remarks},
+                                      updated=now(),
+                                      updatedby=#{updatedby}
+                        WHERE batten_info_id = #{battenInfoId}
+    </update>
+
+    <!--Integer deleteBattenInfoById(Long battenInfoId);-->
+    <delete id="deleteBattenInfoById" parameterType="Long">
+        DELETE FROM sys_batten_info WHERE batten_info_id = #{battenInfoId}
+    </delete>
+
+    <!--Integer deleteMoreBattenInfoById(Integer[] ids);-->
+    <delete id="deleteMoreBattenInfoById" parameterType="Integer">
+        DELETE FROM sys_batten_info WHERE 1 > 2 OR batten_info_id IN
+        <foreach item="ids" collection="array" open="(" separator="," close=")">
+            #{ids}
+        </foreach>
+    </delete>
+</mapper>

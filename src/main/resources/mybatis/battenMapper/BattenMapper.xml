@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oac.project.system.batten.mapper.BattenTypeMapper">
+
+    <resultMap id="allBattenType" type="BattenType">
+        <id property="battenTypeId" column="batten_type_id"/>
+        <result property="battenName" column="batten_name"/>
+        <result property="battenTypeName" column="batten_type_name"/>
+    </resultMap>
+
+    <!--List<BattenType> getAllBattenType();-->
+    <select id="getAllBattenType" resultMap="allBattenType">
+        select batten_type_id,batten_name,batten_type_name from sys_batten_type
+    </select>
+
+    <resultMap id="allBattenVersion" type="BattenVersion">
+        <id property="battenVersionId" column="batten_version_id"/>
+        <result property="battenVersionName" column="batten_version_name"/>
+    </resultMap>
+
+    <!--List<BattenVersion> getAllBattenVersion();-->
+    <select id="getAllBattenVersion" resultMap="allBattenVersion">
+        select batten_version_id,batten_version_name from sys_batten_version
+    </select>
+
+</mapper>

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oac.project.system.board.mapper.BoardInfoMapper">
+
+    <resultMap id="allBoardInfo" type="BoardInfo">
+        <id property="boardInfoId" column="board_info_id"/>
+        <result property="materialId" column="material_id"/>
+        <result property="boardTypeId" column="board_type_id"/>
+        <result property="boardNumber" column="board_number"/>
+        <result property="boardPrice" column="board_price"/>
+        <result property="boardTotal" column="board_total"/>
+        <result property="remarks" column="remarks"/>
+        <result property="created" column="created"/>
+        <result property="createdby" column="createdby"/>
+        <result property="updated" column="updated"/>
+        <result property="updatedby" column="updatedby"/>
+    </resultMap>
+
+    <!--List<BoardInfo> getAllBoardInfo();-->
+    <select id="getAllBoardInfo" resultMap="allBoardInfo">
+        SELECT
+        board_info_id,material_id,board_type_id,board_number,board_price,board_total,remarks,created,createdby,updated,updatedby
+        FROM
+        sys_board_info
+        <if test="startDate == null and endDate == null">
+            ORDER BY created DESC
+        </if>
+        <if test="startDate != null and endDate == null">
+            WHERE created &gt; #{startDate} ORDER BY created DESC
+        </if>
+        <if test="startDate == null and endDate != null">
+            WHERE created &lt; date_add(#{endDate}, interval 1 day) ORDER BY created DESC
+        </if>
+        <if test="startDate != null and endDate != null">
+            WHERE created BETWEEN #{startDate} AND date_add(#{endDate}, interval 1 day) ORDER BY created DESC
+        </if>
+        <if test="page != null and limit != null">
+            LIMIT #{page},#{limit}
+        </if>
+    </select>
+
+    <!--Long getCount(String startDate, String endDate);-->
+    <select id="getCount" resultType="Long">
+        SELECT COUNT(board_info_id) FROM sys_board_info
+        <if test="startDate != null and endDate != null">
+            WHERE created BETWEEN #{startDate} AND date_add(#{endDate}, interval 1 day)
+        </if>
+        <if test="startDate != null and endDate == null">
+            WHERE created &gt; #{startDate}
+        </if>
+        <if test="startDate == null and endDate != null">
+            WHERE created &lt; date_add(#{endDate}, interval 1 day)
+        </if>
+    </select>
+
+    <!--int saveBoardInfo(BoardInfo boardInfo);-->
+    <insert id="saveBoardInfo" parameterType="BoardInfo">
+        INSERT INTO sys_board_info (material_id,board_type_id,board_number,board_price,board_total,remarks,created,createdby,updated,updatedby)
+        VALUES (#{materialId},
+                #{boardTypeId},
+                #{boardNumber},
+                #{boardPrice},
+                #{boardTotal},
+                #{remarks},
+                now(),
+                #{createdby},
+                now(),
+                #{updatedby})
+    </insert>
+
+    <!--Integer updateBoardInfo(BoardInfo boardInfo);-->
+    <update id="updateBoardInfo" parameterType="BoardInfo">
+            UPDATE sys_board_info SET material_id=#{materialId},
+                                      board_type_id=#{boardTypeId},
+                                      board_number=#{boardNumber},
+                                      board_price=#{boardPrice},
+                                      board_total=#{boardTotal},
+                                      remarks=#{remarks},
+                                      updated=now(),
+                                      updatedby=#{updatedby}
+                        WHERE board_info_id = #{boardInfoId}
+    </update>
+
+    <!--Integer deleteBoardInfoById(Long boardInfoId);-->
+    <delete id="deleteBoardInfoById" parameterType="Long">
+        DELETE FROM sys_board_info WHERE board_info_id = #{boardInfoId}
+    </delete>
+
+    <!--Integer deleteMoreBoardInfoById(Integer[] ids);-->
+    <delete id="deleteMoreBoardInfoById" parameterType="Integer">
+        DELETE FROM sys_board_info WHERE 1 > 2 OR board_info_id IN
+        <foreach item="ids" collection="array" open="(" separator="," close=")">
+            #{ids}
+        </foreach>
+    </delete>
+</mapper>

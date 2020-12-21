@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oac.project.system.city.mapper.CityMapper">
+
+    <resultMap id="allCity" type="City">
+        <id property="cityId" column="city_id"/>
+        <result property="cityName" column="city_name"></result>
+        <result property="parentId" column="parent_id"/>
+    </resultMap>
+
+    <!--List<City> getAllCity();-->
+    <select id="getAllCity" resultMap="allCity">
+        select city_id,city_name,parent_id from sys_city
+    </select>
+
+</mapper>

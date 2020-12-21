@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../../admin/css/pearCommon.css"/>
+    <link rel="stylesheet" href="../../../component/layui/css/layui.css"/>
+</head>
+<body>
+<form class="layui-form" action="">
+    <div class="mainBox">
+        <div class="main-container">
+            <div class="layui-form-item">
+                <label class="layui-form-label">材质</label>
+                <div class="layui-input-block">
+                    <input type="hidden" name="battenInfoId" th:value="${batten.battenInfoId}">
+                    <select name="materialId" lay-verify="required">
+                        <option value="">请选择材质</option>
+                        <option th:each="material,userStat:${allMaterial}" th:value="${material.materialId}"
+                                th:text="${material.materialName}"
+                                th:selected="${material.materialId}eq${batten.materialId}"></option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">规格</label>
+                <div class="layui-input-block">
+                    <select name="battenTypeId" lay-verify="required">
+                        <option value="">请选择规格</option>
+                        <option th:each="battens,userStat:${battenType}" th:value="${battens.battenTypeId}"
+                                th:text="${battens.battenName}"
+                                th:selected="${battens.battenTypeId}eq${batten.battenTypeId}"></option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">数量</label>
+                <div class="layui-input-block">
+                    <input type="text" name="battenNumber" lay-verify="required|number" autocomplete="off"
+                           placeholder="请输入标题"
+                           class="layui-input" th:value="${batten.battenNumber}">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">单价</label>
+                <div class="layui-input-block">
+                    <input type="text" name="battenPrice" lay-verify="required|number" autocomplete="off"
+                           placeholder="请输入标题"
+                           class="layui-input" th:value="${batten.battenPrice}">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">总价</label>
+                <div class="layui-input-block">
+                    <input type="text" name="battenTotal" lay-verify="required|number" autocomplete="off"
+                           placeholder="请输入标题"
+                           class="layui-input" th:value="${batten.battenTotal}">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">备注</label>
+                <div class="layui-input-block">
+                    <input type="text" name="remarks" lay-verify="required" autocomplete="off" placeholder="请输入标题"
+                           class="layui-input" th:value="${batten.remarks}">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bottom">
+        <div class="button-container">
+            <button type="submit" id="tijiao" class="layui-btn layui-btn-normal layui-btn-sm" lay-submit="" lay-filter="batten-save">
+                <i class="layui-icon layui-icon-ok"></i>
+                提交
+            </button>
+            <button type="reset" class="layui-btn layui-btn-primary layui-btn-sm">
+                <i class="layui-icon layui-icon-refresh"></i>
+                重置
+            </button>
+        </div>
+    </div>
+</form>
+<script src="../../../component/layui/layui.js"></script>
+<script>
+    layui.use(['form', 'jquery'], function () {
+        let form = layui.form;
+        let $ = layui.jquery;
+        form.on('submit(batten-save)', function (data) {
+            let roleIds = "";
+            $('input[type=checkbox]:checked').each(function () {
+                roleIds += $(this).val() + ",";
+            });
+            roleIds = roleIds.substr(0, roleIds.length - 1);
+            data.field.roleIds = roleIds;
+
+            $.ajax({
+                url: '/system/batten/update',
+                data: JSON.stringify(data.field),
+                dataType: 'json',
+                contentType: 'application/json',
+                type: 'post',
+                beforeSend:function(){
+                    $("#tijiao").attr("disabled","true");
+                },
+                success: function (result) {
+                    if (result.success) {
+                        layer.msg(result.msg, {icon: 1, time: 1000}, function () {
+                            parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+                            parent.layui.table.reload("batten-table");
+                        });
+                    } else {
+                        layer.msg(result.msg, {icon: 2, time: 1000},function () {
+                            $("#tijiao").removeAttr("disabled");
+                        });
+                    }
+                }
+            })
+            return false;
+        });
+    })
+</script>
+<script>
+</script>
+</body>
+</html>

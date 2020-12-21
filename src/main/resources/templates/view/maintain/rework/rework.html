@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <link href="../../../component/layui/css/layui.css" rel="stylesheet"/>
+    <link href="../../../admin/css/pearCommon.css" rel="stylesheet"/>
+</head>
+<body>
+<body class="pear-container">
+<div class="layui-card">
+    <div class="layui-card-body">
+        <form class="layui-form" action="">
+            <div class="layui-form-item">
+                <label class="layui-form-label">订单名称</label>
+                <div class="layui-input-inline">
+                    <input type="text" class="layui-input" name="orderName" placeholder="订单名称">
+                </div>
+                <button class="pear-btn pear-btn-md pear-btn-primary" lay-submit lay-filter="order-query">
+                    <i class="layui-icon layui-icon-search"></i>
+                    查询
+                </button>
+                <button type="reset" class="pear-btn pear-btn-md">
+                    <i class="layui-icon layui-icon-refresh"></i>
+                    重置
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="layui-card">
+    <div class="layui-card-body">
+        <table id="distribution-table" lay-filter="distribution-table"></table>
+    </div>
+</div>
+</body>
+
+<script type="text/html" id="distribution-bar">
+    <button class="pear-btn pear-btn-primary pear-btn-sm" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>
+    </button>
+    <button class="pear-btn pear-btn-danger pear-btn-sm" lay-event="remove"><i class="layui-icon layui-icon-delete"></i>
+    </button>
+</script>
+<script src="../../../component/layui/layui.js"></script>
+<script>
+
+    layui.use(['table', 'form', 'jquery', 'laydate'], function () {
+        let table = layui.table;
+        let form = layui.form;
+        let $ = layui.jquery;
+
+        let MODULE_PATH = "/view/system/board/";
+
+        let cols = [
+            [
+                {type: 'checkbox'},
+                {title: 'id', field: 'orderId', align: 'center', width: 50},
+                {title: '发货地址', field: 'cityName', align: 'center', width: 120},
+                {title: '订单名称', field: 'orderName', align: 'center', width: 200},
+                {title: '产品材质', field: 'materialName', align: 'center', width: 100},
+                {title: '产品类型', field: 'modeName', align: 'center', width: 120},
+                {title: '柱子型号', field: 'battenVersionName', align: 'center', width: 80},
+                {title: '订单状态', field: 'reworkDate', align: 'center', templet: '#rework-date', width: 120},
+                {title: '物流状态', field: 'sendDate', align: 'center', templet: '#order-send', width: 120},
+                {title: '客户姓名', field: 'customerName', align: 'center', width: 120},
+                {title: '联系电话', field: 'phone', align: 'center', width: 140},
+                {title: '创建日期', field: 'created', align: 'center', Width: 150,},
+                {title: '操作', toolbar: '#order-bar', align: 'center', width: 200}
+            ]
+
+        ]
+
+        table.render({
+            elem: '#distribution-table',
+            url: '/system/rework/select',
+            page: true,
+            cols: cols,
+            skin: 'line',
+            defaultToolbar: [{
+                layEvent: 'refresh',
+                icon: 'layui-icon-refresh',
+            }, 'filter', 'print', 'exports']
+        });
+
+        table.on('tool(distribution-table)', function (obj) {
+            if (obj.event === 'remove') {
+                window.remove(obj);
+            } else if (obj.event === 'edit') {
+                window.edit(obj);
+            }
+        });
+
+        table.on('toolbar(distribution-table)', function (obj) {
+            if (obj.event === 'refresh') {
+                window.refresh();
+            }
+        });
+
+        form.on('submit(order-query)', function (data) {
+            table.reload('distribution-table', {
+                page: {
+                    curr: 1
+                }, where: data.field
+            })
+            return false;
+        });
+
+        window.edit = function (obj) {
+            layer.open({
+                type: 2,
+                title: '修改',
+                shade: 0.1,
+                area: ['500px', '400px'],
+                content: MODULE_PATH + 'edit?boardInfoId=' + obj.data['boardInfoId']
+            });
+        }
+
+        window.remove = function (obj) {
+            layer.confirm('确定要删除该信息', {icon: 2, title: '提示'}, function (index) {
+                layer.close(index);
+                let loading = layer.load();
+                $.ajax({
+                    url: "/system/board/remove/" + obj.data['boardInfoId'],
+                    dataType: 'json',
+                    type: 'POST',
+                    success: function (result) {
+                        layer.close(loading);
+                        if (result.success) {
+                            layer.msg(result.msg, {icon: 1, time: 1000}, function () {
+                                obj.del();
+                                table.reload('board-table');
+                            });
+                        } else {
+                            layer.msg(result.msg, {icon: 3, time: 1000});
+                        }
+                    }
+                })
+            });
+        }
+
+        window.batchRemove = function (obj) {
+            let data = table.checkStatus(obj.config.id).data;
+            if (data.length === 0) {
+                layer.msg("未选中数据", {icon: 4, time: 1000});
+                return false;
+            }
+            let ids = "";
+            for (let i = 0; i < data.length; i++) {
+                ids += data[i].boardInfoId + ",";
+            }
+            ids = ids.substr(0, ids.length - 1);
+            layer.confirm('确定要删除这些信息', {icon: 2, title: '提示'}, function (index) {
+                layer.close(index);
+                let loading = layer.load();
+                $.ajax({
+                    url: "/system/board/batchRemove/" + ids,
+                    dataType: 'json',
+                    type: 'POST',
+                    success: function (result) {
+                        layer.close(loading);
+                        if (result.success) {
+                            layer.msg(result.msg, {icon: 1, time: 1000}, function () {
+                                table.reload('board-table');
+                            });
+                        } else {
+                            layer.msg(result.msg, {icon: 3, time: 1000});
+                        }
+                    }
+                })
+            });
+        }
+
+        window.refresh = function (param) {
+            table.reload('distribution-table');
+        }
+    })
+</script>
+</body>
+</html>

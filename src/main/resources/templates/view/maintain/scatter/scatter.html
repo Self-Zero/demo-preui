@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title></title>
+	<link href="../../../component/layui/css/layui.css" rel="stylesheet"/>
+	<link href="../../../admin/css/pearCommon.css" rel="stylesheet"/>
+</head>
+<body>
+<body class="pear-container">
+<div class="layui-card">
+	<div class="layui-card-body">
+		<form class="layui-form" action="">
+			<div class="layui-form-item">
+				<label class="layui-form-label">订单名称</label>
+				<div class="layui-input-inline">
+					<input type="text" class="layui-input" name="orderNameParam" placeholder="订单名称">
+				</div>
+				<button class="pear-btn pear-btn-md pear-btn-primary" lay-submit lay-filter="distribution-query">
+					<i class="layui-icon layui-icon-search"></i>
+					查询
+				</button>
+				<button type="reset" class="pear-btn pear-btn-md">
+					<i class="layui-icon layui-icon-refresh"></i>
+					重置
+				</button>
+			</div>
+		</form>
+	</div>
+</div>
+<div class="layui-card">
+	<div class="layui-card-body">
+		<table id="distribution-table" lay-filter="distribution-table"></table>
+	</div>
+</div>
+</body>
+
+
+<script type="text/html" id="user-toolbar"></script>
+
+<script type="text/html" id="distribution-bar">
+	<button class="pear-btn pear-btn-primary pear-btn-sm" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>
+	</button>
+	<button class="pear-btn pear-btn-danger pear-btn-sm" lay-event="remove"><i class="layui-icon layui-icon-delete"></i>
+	</button>
+</script>
+
+<script type="text/html" id="carpentry-name">
+	<button class="pear-btn pear-btn-warming pear-btn-sm" plain>{{d.carpentryName}}</button>
+</script>
+
+<script type="text/html" id="primer-name">
+	<button class="pear-btn pear-btn-danger pear-btn-sm" plain>{{d.primerName}}</button>
+</script>
+
+<script type="text/html" id="painter-name">
+	<button class="pear-btn pear-btn-primary pear-btn-sm" plain>{{d.painterName}}</button>
+</script>
+
+<script src="../../../component/layui/layui.js"></script>
+<script>
+
+    layui.use(['table', 'form', 'jquery', 'laydate'], function () {
+        let table = layui.table;
+        let form = layui.form;
+        let $ = layui.jquery;
+
+        let MODULE_PATH = "/view/system/distribution/";
+
+        let cols = [
+            [
+                {title: '订单id', field: 'orderId', align: 'center', Width: 200},
+                {title: '创建日期', field: 'created', align: 'center', Width: 300},
+                {title: '地址', field: 'addressName', align: 'center', width: 100},
+                {title: '客户', field: 'customerName', align: 'center', width: 100},
+                {title: '订单名称', field: 'orderName', align: 'center', width: 400},
+                {title: '木工', field: 'carpentryName', align: 'center',templet: '#carpentry-name', width: 200},
+                {title: '底漆工', field: 'primerName', align: 'center', templet: '#primer-name', width: 200},
+                {title: '面漆工', field: 'painterName', align: 'center',templet: '#painter-name', width: 200},
+                {title: '操作', toolbar: '#distribution-bar', align: 'center', width: 200}
+            ]
+        ]
+
+        table.render({
+            elem: '#distribution-table',
+            url: '/system/distribution/select',
+            limit: 10,           //限制每一页的行数
+            page: true,
+            cols: cols,
+            skin: 'line',
+            toolbar: '#user-toolbar',
+            defaultToolbar: [{
+                layEvent: 'refresh',
+                icon: 'layui-icon-refresh',
+            }, 'filter', 'print', 'exports']
+        });
+
+        table.on('tool(distribution-table)', function (obj) {
+            if (obj.event === 'remove') {
+                window.remove(obj);
+            } else if (obj.event === 'edit') {
+                window.edit(obj);
+            }
+        });
+
+        table.on('toolbar(distribution-table)', function (obj) {
+            if (obj.event === 'refresh') {
+                window.refresh();
+            }
+        });
+
+        form.on('submit(distribution-query)', function (data) {
+            table.reload('distribution-table', {
+                page: {
+                    curr: 1
+                }, where: data.field
+            })
+            return false;
+    });
+
+        window.edit = function (obj) {
+            layer.open({
+                type: 2,
+                title: '修改',
+                shade: 0.1,
+                area: ['500px', '400px'],
+                content: MODULE_PATH + 'edit?orderId=' + obj.data['orderId']
+            });
+        }
+
+        window.remove = function (obj) {
+            layer.confirm('确定要删除该信息', {icon: 2, title: '提示'}, function (index) {
+                layer.close(index);
+                let loading = layer.load();
+                $.ajax({
+                    url: "/system/distribution/remove/" + obj.data['orderId'],
+                    dataType: 'json',
+                    type: 'POST',
+                    success: function (result) {
+                        layer.close(loading);
+                        if (result.success) {
+                            layer.msg(result.msg, {icon: 1, time: 1000}, function () {
+                                obj.del();
+                                table.reload('distribution-table');
+                            });
+                        } else {
+                            layer.msg(result.msg, {icon: 3, time: 1000});
+                        }
+                    }
+                })
+            });
+        }
+
+        window.refresh = function (param) {
+            table.reload('distribution-table');
+        }
+    })
+</script>
+</body>
+</html>

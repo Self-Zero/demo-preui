@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <link href="../../../component/layui/css/layui.css" rel="stylesheet"/>
+    <link href="../../../admin/css/pearCommon.css" rel="stylesheet"/>
+</head>
+<body>
+<body class="pear-container">
+<div class="layui-card">
+    <div class="layui-card-body">
+        <form class="layui-form" action="">
+            <div class="layui-form-item">
+                <label class="layui-form-label">员工姓名</label>
+                <div class="layui-input-inline">
+                    <input type="text" class="layui-input" name="workerNameParam">
+                </div>
+                <label class="layui-form-label">入职日期</label>
+                <div class="layui-input-inline">
+                    <input type="text" class="layui-input" name="entryDateParam" id="entryDateParam" placeholder="yyyy-MM-dd">
+                </div>
+                <button class="pear-btn pear-btn-md pear-btn-primary" lay-submit lay-filter="worker-query">
+                    <i class="layui-icon layui-icon-search"></i>
+                    查询
+                </button>
+                <button type="reset" class="pear-btn pear-btn-md">
+                    <i class="layui-icon layui-icon-refresh"></i>
+                    重置
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="layui-card">
+    <div class="layui-card-body">
+        <table id="worker-table" lay-filter="worker-table"></table>
+    </div>
+</div>
+</body>
+
+<script type="text/html" id="worker-toolbar">
+    <button class="pear-btn pear-btn-primary pear-btn-md" lay-event="add">
+        <i class="layui-icon layui-icon-add-1"></i>
+        新增
+    </button>
+</script>
+
+<script type="text/html" id="worker-bar">
+    <button class="pear-btn pear-btn-primary pear-btn-sm" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>
+    </button>
+    <button class="pear-btn pear-btn-danger pear-btn-sm" lay-event="remove"><i class="layui-icon layui-icon-delete"></i>
+    </button>
+</script>
+
+
+<script type="text/html" id="worker-type">
+    {{#if (d.workerType == 0) { }}
+    <button class="pear-btn pear-btn-success pear-btn-sm" plain>小工</button>
+    {{# }else if(d.workerType == 1){ }}
+    <button class="pear-btn pear-btn-warming pear-btn-sm" plain>木工</button>
+    {{# }else if(d.workerType == 2){ }}
+    <button class="pear-btn pear-btn-danger pear-btn-sm" plain>底漆工</button>
+    {{# }else if(d.workerType == 3){ }}
+    <button class="pear-btn pear-btn-primary pear-btn-sm" plain>面漆工</button>
+    {{# } }}
+</script>
+
+
+<script type="text/html" id="worker-entryDate">
+    {{#if (d.entryDate == null && d.quitDate != null) { }}
+        <button class="pear-btn pear-btn-danger pear-btn-sm" plain>离职员工</button>
+    {{# }else if(d.entryDate != null && d.quitDate == null){ }}
+        {{layui.util.toDateString(d.entryDate, 'yyyy-MM-dd----HH:mm:ss')}}
+    {{# } }}
+</script>
+
+<script type="text/html" id="worker-info">
+    {{#if (d.entryDate != null && d.quitDate == null) { }}
+        <button class="pear-btn pear-btn-success pear-btn-sm" plain>在职员工</button>
+    {{# }else if(d.entryDate == null && d.quitDate != null){ }}
+        {{layui.util.toDateString(d.quitDate, 'yyyy-MM-dd----HH:mm:ss')}}
+    {{# } }}
+</script>
+
+
+
+<script src="../../../component/layui/layui.js"></script>
+<script>
+
+    layui.use(['table', 'form', 'jquery', 'laydate'], function () {
+        let table = layui.table;
+        let form = layui.form;
+        let $ = layui.jquery;
+        var laydate = layui.laydate;
+
+        let MODULE_PATH = "/view/system/worker/";
+
+        let cols = [
+            [
+                {type: 'checkbox'},
+                {title: 'id', field: 'workerId', align: 'center', width: 50},
+                {title: '工种类型', field: 'workerType', align: 'center', templet: '#worker-type', width: 250},
+                {title: '工人姓名', field: 'workerName', align: 'center', width: 250},
+                {title: '联系方式', field: 'workerPhone', align: 'center', width: 250},
+                {title: '入职时间', field: 'entryDate', align: 'center', templet: '#worker-entryDate', width: 250},
+                {title: '离职时间', field: 'quitDate', align: 'center',  templet: '#worker-info', Width: 250},
+                {title: '操作', toolbar: '#worker-bar', align: 'center', width: 250}
+            ]
+
+        ]
+
+        table.render({
+            elem: '#worker-table',
+            url: '/system/worker/select',
+            page: true,
+            cols: cols,
+            skin: 'line',
+            toolbar: '#worker-toolbar',
+            defaultToolbar: [{
+                layEvent: 'refresh',
+                icon: 'layui-icon-refresh',
+            }, 'filter', 'print', 'exports']
+        });
+
+        table.on('tool(worker-table)', function (obj) {
+            if (obj.event === 'remove') {
+                window.remove(obj);
+            } else if (obj.event === 'edit') {
+                window.edit(obj);
+            }
+        });
+
+        table.on('toolbar(worker-table)', function (obj) {
+            if (obj.event === 'add') {
+                window.add();
+            } else if (obj.event === 'refresh') {
+                window.refresh();
+            }
+        });
+
+        form.on('submit(worker-query)', function (data) {
+            table.reload('worker-table', {
+                page: {
+                    curr: 1
+                }, where: data.field
+            })
+            return false;
+        });
+
+        window.add = function () {
+            layer.open({
+                type: 2,
+                title: '新增',
+                shade: 0.1,
+                area: ['500px', '400px'],
+                content: MODULE_PATH + 'add'
+            });
+        }
+
+        window.edit = function (obj) {
+            layer.open({
+                type: 2,
+                title: '修改',
+                shade: 0.1,
+                area: ['500px', '400px'],
+                content: MODULE_PATH + 'edit?workerId=' + obj.data['workerId']
+            });
+        }
+
+        window.remove = function (obj) {
+            layer.confirm('确定要删除该用户', {icon: 2, title: '提示'}, function (index) {
+                layer.close(index);
+                let loading = layer.load();
+                $.ajax({
+                    url: "/system/worker/remove/" + obj.data['workerId'],
+                    dataType: 'json',
+                    type: 'POST',
+                    success: function (result) {
+                        layer.close(loading);
+                        if (result.success) {
+                            layer.msg(result.msg, {icon: 1, time: 1000}, function () {
+                                obj.del();
+                                table.reload('worker-table');
+                            });
+                        } else {
+                            layer.msg(result.msg, {icon: 3, time: 1000});
+                        }
+                    }
+                })
+            });
+        }
+
+        window.refresh = function (param) {
+            table.reload('worker-table');
+        }
+
+        // input 日期选择
+        $("#entryDateParam").each(function () {
+            // 常规用法
+            laydate.render({
+                elem: this
+            });
+        })
+    })
+</script>
+</body>
+</html>

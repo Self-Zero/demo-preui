@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oac.project.system.order.mapper.OrderMapper">
+
+    <resultMap id="allOrder" type="OrderInfo">
+        <id property="orderId" column="order_id"/>
+        <result property="addressId" column="address_id"/>
+        <result property="orderName" column="order_name"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="materialId" column="material_id"/>
+        <result property="modeId" column="mode_id"/>
+        <result property="orderNumber" column="order_number"/>
+        <result property="orderColor" column="order_color"/>
+        <result property="battenVersionId" column="batten_version_id"/>
+        <result property="battenBigId" column="batten_big_id"/>
+        <result property="battenSmallId" column="batten_small_id"/>
+        <result property="orderPrice" column="order_price"/>
+        <result property="orderTotal" column="order_total"/>
+        <result property="orderState" column="order_state"/>
+        <result property="remarks" column="remarks"/>
+        <result property="reworkDate" column="rework_date"/>
+        <result property="sendDate" column="send_date"/>
+        <result property="demandPic1" column="demand_pic1"/>
+        <result property="demandPic2" column="demand_pic2"/>
+        <result property="demandPic3" column="demand_pic3"/>
+        <result property="demandPic4" column="demand_pic4"/>
+        <result property="demandPic5" column="demand_pic5"/>
+        <result property="designChart" column="design_chart"/>
+        <result property="created" column="created"/>
+        <result property="createdby" column="createdby"/>
+        <result property="updated" column="updated"/>
+        <result property="updatedby" column="updatedby"/>
+    </resultMap>
+
+    <!--List<OrderInfo> getAllOrderInfo(Integer page, Integer limit, String customerCondition, String orderCondition);-->
+    <select id="getAllOrderInfo" resultMap="allOrder">
+        SELECT
+        order_id,sys_order_info.address_id,order_name,sys_order_info.customer_id,sys_customer.customer_name,material_id,mode_id,order_number,order_color,batten_version_id,batten_big_id,batten_small_id,
+        order_price,order_total,order_state,remarks,rework_date,send_date,demand_pic1,demand_pic2,
+        demand_pic3,demand_pic4,demand_pic5,design_chart,sys_order_info.created,createdby,updated,updatedby
+        FROM sys_order_info LEFT JOIN sys_customer ON sys_order_info.customer_id = sys_customer.customer_id
+        <if test="customerCondition == null and orderCondition == null">
+            WHERE rework_date IS NULL ORDER BY sys_order_info.created DESC
+        </if>
+        <if test="customerCondition != null and orderCondition == null">
+            WHERE sys_customer.customer_name LIKE "%"#{customerCondition}"%" AND rework_date IS NULL ORDER BY sys_order_info.created DESC
+        </if>
+        <if test="customerCondition == null and orderCondition != null">
+            WHERE order_name LIKE "%"#{orderCondition}"%" AND rework_date IS NULL ORDER BY sys_order_info.created DESC
+        </if>
+        <if test="customerCondition != null and orderCondition != null">
+            WHERE sys_customer.customer_name LIKE "%"#{customerCondition}"%" AND order_name LIKE "%"#{orderCondition}"%" AND rework_date IS NULL
+            ORDER BY sys_order_info.created DESC
+        </if>
+        <if test="page != null and limit != ''">
+            LIMIT #{page},#{limit}
+        </if>
+    </select>
+
+    <!--OrderInfo getOrderInfoById(Long orderId);-->
+    <select id="getOrderInfoById" resultMap="allOrder">
+        SELECT
+        order_id,sys_order_info.address_id,order_name,sys_order_info.customer_id,sys_customer.customer_name,material_id,mode_id,order_number,order_color,batten_version_id,batten_big_id,batten_small_id,
+        order_price,order_total,order_state,remarks,rework_date,send_date,demand_pic1,demand_pic2,
+        demand_pic3,demand_pic4,demand_pic5,design_chart,sys_order_info.created,createdby,updated,updatedby
+        FROM sys_order_info LEFT JOIN sys_customer ON sys_order_info.customer_id = sys_customer.customer_id
+        WHERE order_id = #{orderId}
+    </select>
+
+    <!--OrderInfo getOrderInfoByIdDistribution(Long orderId);-->
+    <select id="getOrderInfoByIdDistribution" resultMap="allOrder">
+        SELECT
+        order_id,address_id,order_name,customer_id
+        FROM sys_order_info
+        WHERE order_id = #{orderId}
+    </select>
+
+    <!--List<OrderInfo> getAllReworkOrderInfo(Integer page, Integer limit, String customerCondition, String orderCondition);-->
+    <select id="getAllReworkOrderInfo" resultMap="allOrder">
+        SELECT
+        order_id,sys_order_info.address_id,order_name,sys_order_info.customer_id,sys_customer.customer_name,material_id,mode_id,order_number,order_color,batten_version_id,batten_big_id,batten_small_id,
+        order_price,order_total,order_state,remarks,rework_date,send_date,demand_pic1,demand_pic2,
+        demand_pic3,demand_pic4,demand_pic5,design_chart,sys_order_info.created,createdby,updated,updatedby
+        FROM sys_order_info LEFT JOIN sys_customer ON sys_order_info.customer_id = sys_customer.customer_id
+        <if test="customerCondition == null and orderCondition == null">
+            WHERE rework_date IS NOT NULL ORDER BY sys_order_info.created DESC
+        </if>
+        <if test="customerCondition != null and orderCondition == null">
+            WHERE rework_date IS NOT NULL AND sys_customer.customer_name LIKE "%"#{customerCondition}"%" ORDER BY sys_order_info.created DESC
+        </if>
+        <if test="customerCondition == null and orderCondition != null">
+            WHERE rework_date IS NOT NULL AND order_name LIKE "%"#{orderCondition}"%" ORDER BY sys_order_info.created DESC
+        </if>
+        <if test="customerCondition != null and orderCondition != null">
+            WHERE rework_date IS NOT NULL AND sys_customer.customer_name LIKE "%"#{customerCondition}"%" AND order_name LIKE "%"#{orderCondition}"%"
+            ORDER BY sys_order_info.created DESC
+        </if>
+        <if test="page != null and limit != ''">
+            LIMIT #{page},#{limit}
+        </if>
+    </select>
+
+    <!--Long getCount(Integer orderState, String reworkDate, Long customerId, String customerCondition, String orderCondition);-->
+    <select id="getCount" resultType="Long">
+        SELECT COUNT(order_id) FROM sys_order_info LEFT JOIN sys_customer ON sys_order_info.customer_id = sys_customer.customer_id
+        <if test="reworkDate == null and orderState == null and customerId == null and customerCondition == null and orderCondition == null">
+            WHERE rework_date IS NULL
+        </if>
+        <if test="reworkDate == null and orderState == null and customerId == null and customerCondition != null and orderCondition == null">
+            WHERE sys_customer.customer_name LIKE "%"#{customerCondition}"%" AND rework_date IS NULL
+        </if>
+        <if test="reworkDate == null and orderState == null and customerId == null and customerCondition == null and orderCondition != null">
+            WHERE order_name LIKE "%"#{orderCondition}"%" AND rework_date IS NULL
+        </if>
+        <if test="reworkDate == null and orderState == null and customerId == null and customerCondition != null and orderCondition != null">
+            WHERE sys_customer.customer_name LIKE "%"#{customerCondition}"%" AND order_name LIKE "%"#{orderCondition}"%" AND rework_date IS NULL
+        </if>
+        <if test="reworkDate == null and orderState != null and customerId == null and customerCondition == null and orderCondition == null">
+            WHERE order_state = #{orderState}
+        </if>
+        <if test="reworkDate != null and orderState == null and customerId == null and customerCondition == null and orderCondition == null">
+            WHERE rework_date IS NOT NULL
+        </if>
+        <if test="reworkDate == null and orderState == null and customerId != null and customerCondition == null and orderCondition == null">
+            WHERE sys_order_info.customer_id = #{customerId}
+        </if>
+    </select>
+
+    <!--Long getReworkCount(String customerCondition, String orderCondition);-->
+    <select id="getReworkCount" resultType="Long">
+        SELECT COUNT(order_id) FROM sys_order_info LEFT JOIN sys_customer ON sys_order_info.customer_id =
+        sys_customer.customer_id
+        <if test="customerCondition == null and orderCondition == null">
+            WHERE rework_date IS NOT NULL
+        </if>
+        <if test="customerCondition != null and orderCondition == null">
+            WHERE rework_date IS NOT NULL AND sys_customer.customer_name LIKE "%"#{customerCondition}"%"
+        </if>
+        <if test="customerCondition == null and orderCondition != null">
+            WHERE rework_date IS NOT NULL AND sys_order_info.order_name LIKE "%"#{orderCondition}"%"
+        </if>
+        <if test="customerCondition != null and orderCondition != null">
+            WHERE rework_date IS NOT NULL AND sys_order_info.order_name LIKE "%"#{orderCondition}"%" AND sys_customer.customer_name LIKE "%"#{customerCondition}"%"
+        </if>
+    </select>
+
+    <!--Integer saveOrderInfo(Order order);-->
+    <insert id="saveOrderInfo" parameterType="OrderInfo">
+        INSERT INTO sys_order_info(address_id,order_name,customer_id,material_id,mode_id,order_number,order_color,batten_version_id,batten_big_id,batten_small_id,
+            order_price,order_total,order_state,remarks,rework_date,send_date,demand_pic1,demand_pic2,
+            demand_pic3,demand_pic4,demand_pic5,design_chart,created,createdby,updated,updatedby)
+        VALUES(#{addressId},
+               #{orderName},
+               #{customerId},
+               #{materialId},
+               #{modeId},
+               #{orderNumber},
+               #{orderColor},
+               #{battenVersionId},
+               #{battenBigId},
+               #{battenSmallId},
+               #{orderPrice},
+               #{orderTotal},
+               #{orderState},
+               #{remarks},
+               #{reworkDate},
+               #{sendDate},
+               #{demandPic1},
+               #{demandPic2},
+               #{demandPic3},
+               #{demandPic4},
+               #{demandPic5},
+               #{designChart},
+               now(),
+               #{createdby},
+               now(),
+               #{updatedby})
+    </insert>
+
+    <!--Integer updateOrderInfo(OrderInfo order);-->
+    <update id="updateOrderInfo" parameterType="OrderInfo">
+            UPDATE sys_order_info SET order_name=#{orderName},
+                                      address_id=#{addressId},
+                                      customer_id=#{customerId},
+                                      material_id=#{materialId},
+                                      mode_id=#{modeId},
+                                      order_number=#{orderNumber},
+                                      order_color=#{orderColor},
+                                      batten_version_id=#{battenVersionId},
+                                      batten_big_id=#{battenBigId},
+                                      batten_small_id=#{battenSmallId},
+                                      order_price=#{orderPrice},
+                                      order_total=#{orderTotal},
+                                      remarks=#{remarks},
+                                      design_chart=#{designChart},
+                                      updated=now(),
+                                      updatedby=#{updatedby}
+                        WHERE order_id = #{orderId}
+    </update>
+
+    <!--Integer deleteOrderInfoById(Long orderId);-->
+    <delete id="deleteOrderInfoById" parameterType="Long">
+        DELETE FROM sys_order_info WHERE order_id = #{orderId}
+    </delete>
+
+    <!--Integer deleteMoreOrderInfoById(Integer[] ids);-->
+    <!--<delete id="deleteMoreOrderInfoById" parameterType="Integer">
+        DELETE FROM sys_order_info WHERE 1 > 2 OR order_id IN
+        <foreach item="ids" collection="array" open="(" separator="," close=")">
+            #{ids}
+        </foreach>
+    </delete>-->
+
+    <!--Integer setOrderInfoByState(Long orderId);-->
+    <update id="setOrderInfoByState" parameterType="Long">
+        UPDATE sys_order_info SET order_state=1,updated=now() WHERE order_id = #{orderId}
+    </update>
+
+    <!--Long getOrderCountByCustomerId(Long customerId);-->
+    <select id="getOrderCountByCustomerId" resultType="Long">
+        select count(order_id) from sys_order_info where customer_id = #{customerId}
+    </select>
+
+    <!--Integer setOrderInfoBySendDate(Date created, Long orderId);-->
+    <update id="setOrderInfoBySendDate" parameterType="OrderInfo">
+        UPDATE sys_order_info SET
+        <if test="created != null">
+            send_date= #{created},
+        </if>
+        <if test="created == null">
+            send_date= null,
+        </if>
+        updated=now() WHERE order_id = #{orderId}
+    </update>
+
+    <!--List<OrderInfo> getOrderInfoIsNotNull();-->
+    <select id="getOrderInfoIsNotNull" resultMap="allOrder">
+        SELECT
+        order_id,order_name
+        FROM sys_order_info WHERE send_date IS NOT NULL
+    </select>
+
+    <!--Integer setOrderInfoByReturn(Long orderId);-->
+    <update id="setOrderInfoByReturn" parameterType="OrderInfo">
+        UPDATE sys_order_info SET rework_date = now()
+        WHERE order_id = #{orderId}
+    </update>
+
+</mapper>

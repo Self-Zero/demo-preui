@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../../admin/css/pearCommon.css"/>
+    <link rel="stylesheet" href="../../../component/layui/css/layui.css"/>
+    <!-- 图片框样式-->
+    <style>
+        .layui-upload-img {
+            width: 92px;
+            height: 92px;
+            margin: 0 10px 10px 0;
+        }
+    </style>
+</head>
+<body>
+<form class="layui-form">
+    <div class="mainBox">
+        <div class="main-container">
+            <div class="layui-form-item">
+                <label class="layui-form-label">客户信息:</label>
+                <div class="layui-input-inline">
+                    <select name="cityId" lay-verify="required" lay-filter="parentCity">
+                        <option value="">--请选择--</option>
+                        <option th:each="city,userStat:${cityByPatent}" th:value="${city.getCityId()}"
+                                th:text="${city.getCityName()}"></option>
+                    </select>
+                </div>
+                <div class="layui-input-inline">
+                    <select name="addressId" lay-verify="required" lay-filter="urbanCity" id="urbanCity">
+                        <option value="">--请选择--</option>
+                    </select>
+                </div>
+                <div class="layui-input-inline">
+                    <select name="customerId" lay-verify="required" lay-filter="customers" id="customers">
+                        <option value="">--请选择--</option>
+                    </select>
+                </div>
+                <div class="layui-input-inline">
+                    <select name="phone" lay-filter="customerPhone" id="customerPhone">
+                        <option value="">--请选择--</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">订单名称:</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="orderName" lay-verify="required" autocomplete="off"
+                               placeholder="请输入订单名称"
+                               class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">产品颜色:</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="orderColor" lay-verify="required" lay-reqtext="颜色是必填项，岂能为空？"
+                               placeholder="请输入产品颜色" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">产品材质:</label>
+                    <div class="layui-input-inline">
+                        <select name="materialId" lay-verify="required">
+                            <option value="">--请选择材质--</option>
+                            <option th:each="material,userStat:${allMaterial}" th:value="${material.materialId}"
+                                    th:text="${material.materialName}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">产品类型:</label>
+                    <div class="layui-input-inline">
+                        <select name="modeId" lay-verify="required" lay-search="">
+                            <option value="">--请选择类型--</option>
+                            <option th:each="mode,userStat:${allMode}" th:value="${mode.modeId}"
+                                    th:text="${mode.modeName}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">定金:</label>
+                    <div class="layui-input-inline">
+                        <input type="tel" name="orderPrice" lay-verify="required|number" autocomplete="off"
+                               placeholder="请输入定金" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">全款:</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="orderTotal" lay-verify="required|number" autocomplete="off"
+                               placeholder="请输入全款" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">数量:</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="orderNumber" lay-verify="required|number" autocomplete="off"
+                               placeholder="单位（步数,米数,平方数）" class="layui-input">
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">柱型:</label>
+                    <div class="layui-input-inline">
+                        <select name="battenVersionId">
+                            <option value="">--请选择柱型--</option>
+                            <option th:each="version,userStat:${battenVersion}" th:value="${version.battenVersionId}"
+                                    th:text="${version.battenVersionName}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">大柱:</label>
+                    <div class="layui-input-inline">
+                        <select name="battenBigId">
+                            <option value="">请选择规格</option>
+                            <option th:each="big,userStat:${battenByTypeBig}" th:value="${big.battenTypeId}"
+                                    th:text="${big.battenName}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">小柱:</label>
+                    <div class="layui-input-inline">
+                        <select name="battenSmallId">
+                            <option value="">请选择规格</option>
+                            <option th:each="small,userStat:${battenByTypeSmall}" th:value="${small.battenTypeId}"
+                                    th:text="${small.battenName}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-upload">
+                        <blockquote class="layui-elem-quote layui-quote-nm" style="margin-top: 10px;">
+                            预览图：
+                            <button type="button" class="layui-btn" id="uoloadfile">订单需求上传</button>
+                            <div class="layui-upload-list" id="img_upload"></div>
+                        </blockquote>
+                        <button id="hideUpload" type="button" style="display: none"></button>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">备注:</label>
+                    <div class="layui-input-inline">
+                        <input type="text" style="width: 765px;" name="remarks" autocomplete="off"
+                               class="layui-input">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bottom">
+        <div class="button-container">
+            <button type="submit" class="layui-btn layui-btn-normal layui-btn-sm" id="subImage" lay-submit=""
+                    lay-filter="order-save">
+                <i class="layui-icon layui-icon-ok"></i>
+                添加
+            </button>
+            <button type="reset" class="layui-btn layui-btn-primary layui-btn-sm">
+                <i class="layui-icon layui-icon-refresh"></i>
+                重置
+            </button>
+        </div>
+    </div>
+</form>
+<script src="../../../component/layui/layui.js"></script>
+<script>
+
+    layui.use(['form', 'jquery', 'upload'], function () {
+        /*-----------------------------------------------------------------------------------------*/
+        let form = layui.form;
+        let $ = layui.jquery;
+        let upload = layui.upload;
+        var imgUrl = [];
+
+        var orderData = null;
+        var flag = false;
+        var len = 0;
+        var icount = 0;
+        //多图片上传
+        upload.render({
+            elem: '#uoloadfile'                 //绑定点击按钮
+            , async: false
+            , url: '/file/upload'               //上传接口
+            , accept: 'images/*'                //图片格式
+            , number: 5                         //最大上传图片数量
+            , auto: false                       //取消自动上传
+            , multiple: true                    //确认上传多张图片
+            , method: 'post'                    //请求上传的 http 类型
+            , bindAction: '#hideUpload',        //绑定真正的上传按钮
+            choose: function (obj) {            //obj参数包含的信息，跟 choose回调完全一致
+                //将每次选择的文件追加到文件队列
+                var files = obj.pushFile();
+                len = getJsonLength(files);
+                //layer.load(); //上传loading
+                obj.preview(function (index, file, result) {
+                    if (parseInt(len) > 5) {
+                        layer.msg("图片不能超过5张");
+                        //遍历
+                        $.each(files, function (_key) {
+                            var key = _key;
+                            var value = files[_key];
+                            if (_key == index) {  //删除
+                                delete files[_key];
+                            }
+                        });
+                    } else {
+                        $('#img_upload').append('<img src="' + result + '" id="image_' + index + '" alt="' + file.name + '" class="layui-upload-img">')
+                        $('#image_' + index).bind('dblclick', function () {//双击删除指定预上传图片
+                            delete files[index];//删除指定图片
+                            len = len - 1;
+                            $(this).remove();
+                        });
+                    }
+                })
+            },
+            done: function (res) {
+                imgUrl.push(res.paths);
+                icount++;
+                if (icount == len) {
+                    flag = true;
+                }
+                //alert("上传后:"+flag);
+            }
+            ,
+            error: function () {
+                //请求异常回调
+            }
+        });
+
+        /*-----------------------------------------------------------------------------------------*/
+        // 新增订单JS
+        form.on('submit(order-save)', function (data) {
+            $("#subImage").attr("disabled","true");
+            // alert("首次:"+flag);
+            var imgVal = $("#img_upload").html();
+            if (imgVal == null || imgVal == "") {
+                // 直接上传表单信息
+                saveOrder(data);
+            } else {
+                $("#hideUpload").trigger("click");
+                // setTimeout(function(){flag = true;console.log(flag)},200);
+                var id = setInterval(function () {
+                    // console.log(flag);
+                    // alert("判断:"+flag);
+                    if (flag) {
+                        if (imgUrl != null) {
+                            // 触发上传按钮
+                            // 触发上传文件
+                            // 遍历imgUrl的信息
+                            data.field.imgUrl = imgUrl;
+                            // console.log("data:"+JSON.stringify(data.field));
+                            // 发送ajax请求 提交 表单信息
+                            saveOrder(data);
+                            clearInterval(id);
+                        }
+                    }
+                }, 500);
+
+            }
+            return false;
+        });
+
+
+        /*// 新增订单JS
+        form.on('submit(order-save)', function (data) {
+            alert(flag);
+            $("#hideUpload").trigger("click");
+            setTimeout(function(){flag=true;}, 1000);
+            while(!flag);
+            var imgVal = $("#img_upload").html();
+            console.log("imgVal:" + imgVal);
+            console.log("imgUrl:" + imgUrl);
+            if (imgVal == null) {
+                alert(4);
+                // 直接上传表单信息
+                saveOrder(data);
+            } else {
+                alert(5);
+                if (imgUrl != null) {
+                    // 触发上传按钮
+                    //触发上传文件
+                    // 遍历imgUrl的信息
+                    data.field.imgUrl = imgUrl;
+                    console.log("data:"+JSON.stringify(data.field));
+                    // 发送ajax请求 提交 表单信息
+                    saveOrder(data);
+                }
+            }
+            return false;
+        });*/
+
+        function saveOrder(data) {
+            $.ajax({
+                url: '/system/order/save',
+                data: JSON.stringify(data.field),
+                dataType: 'json',
+                contentType: 'application/json',
+                type: 'post',
+                success: function (result) {
+                    if (result.success) {
+                        layer.msg(result.msg, {icon: 1, time: 1000}, function () {
+                            parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+                            parent.layui.table.reload("order-table");
+                        });
+                    } else {
+                        layer.msg(result.msg, {icon: 3, time: 1000}, function () {
+                            $("#subImage").removeAttr("disabled");
+                            parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+                            parent.layui.table.reload("order-table");
+                        });
+                    }
+                }
+            });
+        }
+
+
+        /*-----------------------------------------------------------------------------------------*/
+        //省份下拉选中事件,获取城市下拉选中
+        form.render('select');
+        form.on('select(parentCity)', function (data) {
+            var parentId = data.value;
+            // alert(parentId);
+            $.ajax({
+                type: "post",
+                url: "/view/city/cityByParent",
+                data: {parentId: parentId},
+                dataType: "json",
+                success: function (result) {
+                    var tmp = '<option value="">--请选择--</option>';
+                    //改变省级城市时第三四级下拉框恢复原样
+                    $("#customers").html(tmp);
+                    $("#customerPhone").html(tmp);
+                    for (var i in result) {
+                        tmp += '<option value="' + result[i].cityId + '">' + result[i].cityName + '</option>';
+                    }
+                    $("#urbanCity").html(tmp);
+                    form.render();
+                },
+                error: function () {
+                    layer.alert('请求失败，稍后再试', {icon: 5});
+                }
+
+            });
+        });
+        /*-----------------------------------------------------------------------------------------*/
+        //城市下拉选中事件，获取用户名称下拉选中
+        form.on('select(urbanCity)', function (data) {
+            var cityId = data.value;
+            $.ajax({
+                type: "post",
+                url: "/system/customer/customerByUrban",
+                data: {cityId: cityId},
+                dataType: "json",
+                success: function (result) {
+                    var tmp = '<option value="">--请选择--</option>';
+                    // 改变城市时第四级下拉框恢复原样
+                    $("#customerPhone").html(tmp);
+                    for (var i in result) {
+                        tmp += '<option value="' + result[i].customerId + '">' + result[i].customerName + '</option>';
+                    }
+                    $("#customers").html(tmp);
+                    form.render();
+                },
+                error: function () {
+                    layer.alert('请求失败，稍后再试', {icon: 5});
+                }
+
+            });
+
+        });
+        /*-----------------------------------------------------------------------------------------*/
+        //客户下拉选中事件，获取联系方式下拉选中
+        form.on('select(customers)', function (data) {
+            var customerId = data.value;
+            $.ajax({
+                type: "post",
+                url: "/system/customer/customerById",
+                data: {customerId: customerId},
+                dataType: "json",
+                success: function (result) {
+                    var tmp = '<option value="">--请选择--</option>';
+                    for (var i in result) {
+                        tmp += '<option value="">' + result[i].phone + '</option>';
+                    }
+                    $("#customerPhone").html(tmp);
+                    form.render();
+                },
+                error: function () {
+                    layer.alert('请求失败，稍后再试', {icon: 5});
+                }
+            });
+        });
+
+        function getJsonLength(jsonData) {
+            var jsonLength = 0;
+            for (var item in jsonData) {
+                jsonLength++;
+            }
+            return jsonLength;
+        }
+    })
+</script>
+<script>
+</script>
+</body>
+</html>

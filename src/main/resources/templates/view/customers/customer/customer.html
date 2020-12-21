@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <link href="../../../component/layui/css/layui.css" rel="stylesheet"/>
+    <link href="../../../admin/css/pearCommon.css" rel="stylesheet"/>
+</head>
+<body>
+<body class="pear-container">
+<div class="layui-card">
+    <div class="layui-card-body">
+        <form class="layui-form">
+            <div class="layui-form-item">
+                <label class="layui-form-label">客户名称</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="customerNameParam" id="customerNameParam" class="layui-input">
+                </div>
+                <label class="layui-form-label">客户电话</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="customerPhoneParam" id="customerPhoneParam" class="layui-input">
+                </div>
+                <button class="pear-btn pear-btn-md pear-btn-primary" lay-submit lay-filter="customer-query">
+                    <i class="layui-icon layui-icon-search"></i>
+                    查询
+                </button>
+                <button type="reset" class="pear-btn pear-btn-md">
+                    <i class="layui-icon layui-icon-refresh"></i>
+                    重置
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="layui-card">
+    <div class="layui-card-body">
+        <table id="customer-table" lay-filter="customer-table"></table>
+    </div>
+</div>
+</body>
+
+<script type="text/html" id="customer-toolbar">
+    <button class="pear-btn pear-btn-primary pear-btn-md" lay-event="add">
+        <i class="layui-icon layui-icon-add-1"></i>
+        新增
+    </button>
+    <button class="pear-btn pear-btn-danger pear-btn-md" lay-event="batchRemove">
+        <i class="layui-icon layui-icon-delete"></i>
+        删除
+    </button>
+</script>
+
+<script type="text/html" id="customer-bar">
+    <button class="pear-btn pear-btn-primary pear-btn-sm" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>
+    </button>
+    <button class="pear-btn pear-btn-danger pear-btn-sm" lay-event="remove"><i class="layui-icon layui-icon-delete"></i>
+    </button>
+</script>
+
+<script src="../../../component/layui/layui.js"></script>
+<script>
+    layui.use(['table', 'form', 'jquery'], function () {
+        let table = layui.table;
+        let form = layui.form;
+        let $ = layui.jquery;
+        let MODULE_PATH = "/view/system/customer/";
+
+        let cols = [
+            [
+                {type: 'checkbox'},
+                {title: 'id', field: 'customerId', align: 'center', width: 50},
+                {title: '客户地址', field: 'customerAddress', align: 'center', width: 250},
+                {title: '客户名称', field: 'customerName', align: 'center', width: 250},
+                {title: '联系电话', field: 'customerPhone', align: 'center', width: 250},
+                {title: '订单数量', field: 'orderNumber', align: 'center', width: 250},
+                {title: '合作时间', field: 'created', align: 'center', Width: 250},
+                {title: '操作', toolbar: '#customer-bar', align: 'center', width: 250}
+            ]
+        ]
+
+        table.render({
+            elem: '#customer-table',
+            url: '/system/customer/select',
+            page: true,
+            cols: cols,
+            limit: 10,           //限制每一页的行数
+            skin: 'line',
+            toolbar: '#customer-toolbar',
+            defaultToolbar: [{
+                layEvent: 'refresh',
+                icon: 'layui-icon-refresh',
+            }, 'filter', 'print', 'exports']
+        });
+
+        table.on('tool(customer-table)', function (obj) {
+            if (obj.event === 'remove') {
+                window.remove(obj);
+            } else if (obj.event === 'edit') {
+                window.edit(obj);
+            }
+        });
+
+        table.on('toolbar(customer-table)', function (obj) {
+            if (obj.event === 'add') {
+                window.add();
+            } else if (obj.event === 'refresh') {
+                window.refresh();
+            } else if (obj.event === 'batchRemove') {
+                window.batchRemove(obj);
+            }
+        });
+
+        form.on('submit(customer-query)', function (obj) {
+            table.reload('customer-table', {
+                page: {
+                    curr: 1
+                },
+                where: obj.field
+            })
+            return false;
+        });
+
+        form.on('switch(user-enable)', function (obj) {
+            layer.tips(this.value + ' ' + this.name + '：' + obj.elem.checked, obj.othis);
+        });
+
+        window.add = function () {
+            layer.open({
+                type: 2,
+                title: '新增',
+                shade: 0.1,
+                area: ['550px', '300px'],
+                content: MODULE_PATH + 'add',
+            });
+        }
+
+        window.edit = function (obj) {
+            layer.open({
+                type: 2,
+                title: '编辑',
+                data: obj,
+                shade: 0.1,
+                area: ['950px', '600px'],
+                content: MODULE_PATH + 'edit?customerId=' + obj.data['customerId'],
+            });
+        }
+
+        window.remove = function (obj) {
+            layer.confirm('确定要删除该客户信息', {icon: 3, title: '提示'}, function (index) {
+                layer.close(index);
+                let loading = layer.load();
+                $.ajax({
+                    url: "/system/customer/remove/" + obj.data['customerId'],
+                    dataType: 'json',
+                    type: 'POST',
+                    success: function (result) {
+                        layer.close(loading);
+                        if (result.success) {
+                            layer.msg(result.msg, {icon: 1, time: 1000}, function () {
+                                obj.del();
+                                table.reload("customer-table");
+                            });
+                        } else {
+                            layer.msg(result.msg, {icon: 2, time: 1000});
+                        }
+                    }
+                })
+            });
+        }
+
+        window.batchRemove = function (obj) {
+            let data = table.checkStatus(obj.config.id).data;
+            if (data.length === 0) {
+                layer.msg("未选中数据", {icon: 4, time: 1000});
+                return false;
+            }
+            let ids = "";
+            for (let i = 0; i < data.length; i++) {
+                ids += data[i].customerId + ",";
+            }
+            ids = ids.substr(0, ids.length - 1);
+            layer.confirm('确定要删除这些客户信息', {icon: 3, title: '提示'}, function (index) {
+                layer.close(index);
+                let loading = layer.load();
+                $.ajax({
+                    url: "/system/customer/batchRemove/" + ids,
+                    dataType: 'json',
+                    type: 'delete',
+                    success: function (result) {
+                        layer.close(loading);
+                        if (result.success) {
+                            layer.msg(result.msg, {icon: 1, time: 1000}, function () {
+                                table.reload('customer-table');
+                            });
+                        } else {
+                            layer.msg(result.msg, {icon: 2, time: 1000});
+                        }
+                    }
+                })
+            });
+        }
+
+        window.refresh = function (param) {
+            table.reload('customer-table');
+        }
+    })
+</script>
+</body>
+</html>

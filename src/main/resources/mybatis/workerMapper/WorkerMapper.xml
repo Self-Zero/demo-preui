@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oac.project.system.worker.mapper.WorkerMapper">
+
+    <resultMap id="allWorkerInfo" type="Worker">
+        <id property="workerId" column="worker_id"/>
+        <result property="workerName" column="worker_name"/>
+        <result property="entryDate" column="entry_date"/>
+        <result property="quitDate" column="quit_date"/>
+        <result property="workerType" column="worker_type"/>
+        <result property="workerPhone" column="worker_phone"/>
+    </resultMap>
+
+    <!--List<Worker> getAllWorkerInfo(Integer page, Integer limit, String workerNameCondition, String entryDateCondition);-->
+    <select id="getAllWorkerInfo" resultMap="allWorkerInfo">
+        SELECT
+        worker_id,
+        worker_name,
+        entry_date,
+        quit_date,
+        worker_type,
+        worker_phone
+        FROM
+        sys_worker
+        <if test="workerNameCondition != null and entryDateCondition == null">
+            WHERE worker_name LIKE "%"#{workerNameCondition}"%"
+        </if>
+        <if test="workerNameCondition == null and entryDateCondition != null">
+            WHERE entry_date BETWEEN #{entryDateCondition} AND date_add(#{entryDateCondition}, INTERVAL 1 DAY)
+        </if>
+        <if test="workerNameCondition != null and entryDateCondition != null">
+            WHERE worker_name LIKE "%"#{workerNameCondition}"%" AND entry_date BETWEEN #{entryDateCondition} AND date_add(#{entryDateCondition}, INTERVAL 1 DAY)
+        </if>
+        <if test="page != null and limit != null">
+            LIMIT #{page},#{limit}
+        </if>
+    </select>
+
+    <!--Worker getWorkerById(Long workerId);-->
+    <select id="getWorkerById" resultMap="allWorkerInfo">
+        SELECT
+        worker_id,
+        worker_name,
+        entry_date,
+        quit_date,
+        worker_type,
+        worker_phone
+        FROM
+        sys_worker
+        WHERE
+          worker_id = #{workerId}
+    </select>
+
+
+    <!--List<Worker> getWorkerInfoByType(Integer typeId);-->
+    <select id="getWorkerInfoByType" resultMap="allWorkerInfo">
+          SELECT
+            worker_id,
+            worker_name,
+            entry_date,
+            quit_date,
+            worker_type,
+            worker_phone
+          FROM sys_worker WHERE
+            worker_type = #{typeId} AND quit_date IS null
+    </select>
+
+    <!--Long getCount(String workerNameCondition, String entryDateCondition);-->
+    <select id="getCount" resultType="Long">
+        SELECT COUNT(worker_id) FROM sys_worker
+        <if test="workerNameCondition != null and entryDateCondition == null">
+            WHERE worker_name LIKE "%"#{workerNameCondition}"%"
+        </if>
+        <if test="workerNameCondition == null and entryDateCondition != null">
+            WHERE entry_date BETWEEN #{entryDateCondition} AND date_add(#{entryDateCondition}, INTERVAL 1 DAY)
+        </if>
+        <if test="workerNameCondition != null and entryDateCondition != null">
+            WHERE worker_name LIKE "%"#{workerNameCondition}"%" AND entry_date BETWEEN #{entryDateCondition} AND date_add(#{entryDateCondition}, INTERVAL 1 DAY)
+        </if>
+    </select>
+
+    <!--Integer saveWorker(Worker worker);-->
+    <insert id="saveWorker" parameterType="Worker">
+        INSERT INTO sys_worker (worker_name,
+                                entry_date,
+                                worker_type,
+                                worker_phone)
+        VALUES (#{workerName},
+                now(),
+                #{workerType},
+                #{workerPhone}
+                )
+    </insert>
+
+    <!--Integer updateWorker(Worker worker);-->
+    <update id="updateWorker" parameterType="Worker">
+        UPDATE sys_worker SET worker_name=#{workerName},
+                              worker_type=#{workerType},
+                              worker_phone=#{workerPhone}
+                        WHERE worker_id = #{workerId}
+    </update>
+
+    <!--Integer updateWorkerByState(Worker worker);-->
+    <update id="updateWorkerByState" parameterType="Worker">
+        UPDATE sys_worker SET entry_date = NULL,
+                              quit_date = now()
+        WHERE worker_id = #{workerId}
+    </update>
+
+    <!--Integer updateWorkerByCome(Worker worker);-->
+    <update id="updateWorkerByCome" parameterType="Worker">
+        UPDATE sys_worker SET entry_date = now(),
+                              quit_date = NULL
+        WHERE worker_id = #{workerId}
+    </update>
+
+    <!--Integer deleteWorkerById(Long workerId);-->
+    <delete id="deleteWorkerById" parameterType="Long">
+        DELETE FROM sys_worker WHERE worker_id = #{workerId}
+    </delete>
+
+</mapper>

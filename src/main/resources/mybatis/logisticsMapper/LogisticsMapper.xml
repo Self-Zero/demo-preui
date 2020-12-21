@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oac.project.system.logistics.mapper.LogisticsMapper">
+
+    <resultMap id="allLogistics" type="Logistics">
+        <id property="logisticsId" column="logistics_id"/>
+        <result property="orderId" column="order_id"></result>
+        <result property="customerId" column="customer_id"/>
+        <result property="logisticsCompanyId" column="logistics_company_id"/>
+        <result property="logisticsNumber" column="logistics_number"/>
+        <result property="logisticsPrice" column="logistics_price"/>
+        <result property="created" column="created"/>
+    </resultMap>
+
+    <!--List<Logistics> getAllLogistics(Integer page, Integer limit, String orderName, String sendDate);-->
+    <select id="getAllLogistics" resultMap="allLogistics">
+        SELECT logistics_id,
+        sys_logistics.order_id,
+        order_name,
+        sys_logistics.customer_id,
+        logistics_company_id,
+        logistics_number,
+        logistics_price,
+        sys_logistics.created
+        FROM sys_logistics INNER JOIN sys_order_info ON sys_logistics.order_id = sys_order_info.order_id
+        <if test="orderName == null and sendDate == null">
+            ORDER BY sys_logistics.created DESC
+        </if>
+        <if test="orderName != null and sendDate == null">
+            WHERE sys_order_info.order_name LIKE "%"#{orderName}"%" ORDER BY sys_logistics.created DESC
+        </if>
+        <if test="orderName == null and sendDate != null">
+            WHERE sys_logistics.created BETWEEN #{sendDate} AND date_add(#{sendDate}, INTERVAL 1 DAY) ORDER BY
+            sys_logistics.created DESC
+        </if>
+        <if test="orderName != null and sendDate != null">
+            WHERE sys_order_info.order_name LIKE "%"#{orderName}"%" AND sys_logistics.created = #{sendDate}
+            ORDER BY sys_logistics.created DESC
+        </if>
+        <if test="page != null and limit != ''">
+            LIMIT #{page},#{limit}
+        </if>
+    </select>
+
+    <!--Logistics getLogisticsById(Long logisticsId);-->
+    <select id="getLogisticsById" resultMap="allLogistics">
+        SELECT logistics_id,
+        order_id,
+        customer_id,
+        logistics_company_id,
+        logistics_number,
+        logistics_price,
+        created
+        FROM sys_logistics
+        <if test="logisticsId != null">
+            WHERE logistics_id = #{logisticsId}
+        </if>
+    </select>
+
+    <!--Long getCount();-->
+    <select id="getCount" resultType="Long">
+        select count(logistics_id) from sys_logistics
+    </select>
+
+    <!--Integer saveLogisticsInfo(Logistics logistics);-->
+    <insert id="saveLogisticsInfo" parameterType="Logistics">
+        INSERT INTO sys_logistics(order_id,customer_id,logistics_company_id,logistics_number,logistics_price,created)
+        VALUES(#{orderId},
+               #{customerId},
+               #{logisticsCompanyId},
+               #{logisticsNumber},
+               #{logisticsPrice},
+               #{created})
+    </insert>
+
+    <!--Integer deleteLogisticsInfoById(Long logisticsId);-->
+    <delete id="deleteLogisticsInfoById" parameterType="Long">
+        DELETE FROM sys_logistics WHERE logistics_id=#{logisticsId}
+    </delete>
+
+    <!--Integer updateLogisticsInfo(LogisticsVO logisticsVO);-->
+    <update id="updateLogisticsInfo" parameterType="Logistics">
+        UPDATE sys_logistics SET logistics_company_id=#{logisticsCompanyId},
+                                 logistics_number=#{logisticsNumber},
+                                 logistics_price=#{logisticsPrice}
+                             WHERE logistics_id=#{logisticsId}
+    </update>
+
+</mapper>

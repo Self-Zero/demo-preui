@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>后台管理入口</title>
+    <link rel="icon" href="admin/images/logo.ico" >
+    <link rel="stylesheet" href="admin/css/pearForm.css"/>
+    <link rel="stylesheet" href="component/layui/css/layui.css"/>
+    <link rel="stylesheet" href="admin/css/pearButton.css"/>
+    <style>
+        .layui-form {
+            width: 330px;
+            margin: auto;
+            margin-top: 160px;
+        }
+
+        .layui-form button {
+            width: 100%;
+            height: 44px;
+            line-height: 44px;
+            font-size: 16px;
+            font-weight: 550;
+        }
+
+        .layui-form-checked[lay-skin=primary] i {
+            border-color: #2D8CF0 !important;
+            background-color: #2D8CF0;
+            color: #fff;
+        }
+
+        .layui-tab-content {
+            margin-top: 15px;
+            padding-left: 0px;
+            padding-right: 0px;
+        }
+
+        .layui-form-item {
+            margin-top: 20px;
+        }
+
+        .layui-input {
+            height: 44px;
+            line-height: 44px;
+            padding-left: 15px;
+            border-radius: 3px;
+        }
+
+        .layui-input:focus {
+            box-shadow: 0px 0px 3px 1px #2D8CF0 !important;
+        }
+
+        .logo {
+            width: 60px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            margin-left: 20px;
+        }
+
+        .title {
+            font-size: 30px;
+            font-weight: 550;
+            margin-left: 20px;
+            color: #2D8CF0 !important;
+            display: inline-block;
+            height: 60px;
+            line-height: 60px;
+            margin-top: 10px;
+            position: absolute;
+        }
+
+        .desc {
+            width: 100%;
+            text-align: center;
+            color: gray;
+            height: 60px;
+            line-height: 60px;
+        }
+
+    </style>
+</head>
+<body background="admin/images/background.svg">
+<form class="layui-form" method="post">
+    <div class="layui-form-item">
+    <img class="logo" src="admin/images/logo.png"/>
+    <div class="title">Oac Manager</div>
+    <div class="desc">
+        安 徽 原 艺 定 制 家 居
+    </div>
+</div>
+    <div class="layui-form-item">
+        <input type="text" placeholder="请输入账户" autocomplete="off" name="userCode" hover class="layui-input"/>
+    </div>
+    <div class="layui-form-item">
+        <input type="password" placeholder="请输入密码" autocomplete="off" name="password" hover class="layui-input"/>
+    </div>
+    <!--<div class="layui-form-item">
+        <input placeholder="验证码" hover class="layui-input layui-input-inline" style="width: 50%;display: inline-block!important;"/>
+        <img src="https://yun.reg.163.com/urscloud/captcha?type=captcha_pwd&1568683587149" style="border-radius:3px;border: 1px #e6e6e6 solid;height: 100%;width: 45%;display: inline-block!important;height: 42px;" />
+    </div>-->
+    <div class="layui-form-item">
+        <input type="checkbox" name="" title="记住密码" lay-skin="primary" checked>
+    </div>
+    <div class="layui-form-item">
+        <button class="pear-btn pear-btn-primary login">
+            登 入
+        </button>
+    </div>
+</form>
+<div class="desc" style="position: absolute;bottom: 20px;">
+    <a style="color: #666666;" target="_blank" href="https://beian.miit.gov.cn">京ICP备2020034092号</a>
+</div>
+<script src="component/layui/layui.js"></script>
+<script>
+    layui.use(['form', 'element', 'jquery'], function () {
+        var from = layui.form;
+        var element = layui.element;
+        var $ = layui.jquery;
+
+        $("body").on("click", ".login", function (obj) {
+            $.ajax({
+                url: '/login',
+                data: {"userCode":obj.field['userCode'],"password":obj.field['password']}
+            })
+        })
+    })
+</script>
+</body>
+
+</html>

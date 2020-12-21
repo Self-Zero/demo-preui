@@ -1,0 +1,159 @@
+[
+  {
+    "id": "1",
+    "title": "工作空间",
+    "type": 0,
+    "icon": "layui-icon layui-icon-console",
+    "href": "",
+    "children": [
+      {
+        "id": 11,
+        "title": "订单分析",
+        "icon": "layui-icon layui-icon-console",
+        "type": 1,
+        "openType": "_iframe",
+        "href": "view/console/console1"
+      },
+      {
+        "id": 12,
+        "title": "资金统计",
+        "icon": "layui-icon layui-icon-console",
+        "type": 1,
+        "openType": "_iframe",
+        "href": "view/console/console2"
+      }
+    ]
+  },
+  {
+    "id": "2",
+    "title": "信息管理",
+    "icon": "layui-icon layui-icon-component",
+    "type": 0,
+    "href": "",
+    "children": [
+      {
+        "id": 21,
+        "title": "订单管理",
+        "icon": "layui-icon layui-icon-username",
+        "type": 1,
+        "openType": "_iframe",
+        "href": "view/system/order"
+      },
+      {
+        "id": 22,
+        "title": "板材管理",
+        "icon": "layui-icon layui-icon-user",
+        "type": 1,
+        "openType": "_iframe",
+        "href": "view/system/board"
+      },
+      {
+        "id": 23,
+        "title": "方料管理",
+        "icon": "layui-icon layui-icon-user",
+        "type": 1,
+        "openType": "_iframe",
+        "href": "view/system/batten"
+      }
+    ]
+  },
+  {
+    "id": "3",
+    "title": "运维信息",
+    "icon": "layui-icon layui-icon-auz",
+    "type": 0,
+    "href": "",
+    "children": [
+      {
+        "id": 31,
+        "title": "返工信息",
+        "icon": "layui-icon layui-icon-face-smile",
+        "type": 1,
+        "openType": "_iframe",
+        "href": "view/maintain/rework"
+      },
+      {
+        "id": 32,
+        "title": "分配信息",
+        "icon": "layui-icon layui-icon-face-smile",
+        "type": 1,
+        "openType": "_iframe",
+        "href": "view/maintain/scatter"
+      },
+      {
+        "id": 33,
+        "title": "库存管理",
+        "icon": "layui-icon layui-icon-face-smile",
+        "type": 1,
+        "openType": "_iframe",
+        "href": "view/maintain/stock"
+      }
+    ]
+  },
+  {
+    "id": "4",
+    "title": "客户产品",
+    "icon": "layui-icon layui-icon-face-smile",
+    "type": 0,
+    "href": "",
+    "children": [
+      {
+        "id": 41,
+        "title": "发货信息",
+        "icon": "layui-icon layui-icon-face-smile",
+        "type": 1,
+        "openType": "_iframe",
+        "href": "view/system/send"
+      },
+      {
+        "id": 42,
+        "title": "客户信息",
+        "icon": "layui-icon layui-icon-face-smile",
+        "type": 1,
+        "openType": "_iframe",
+        "href": "view/system/customer"
+      }
+    ]
+  },
+  {
+    "id": "5",
+    "title": "系统设置",
+    "icon": "layui-icon layui-icon-set-fill",
+    "type": 0,
+    "href": "",
+    "children": [
+      {
+        "id": 51,
+        "title": "报价管理",
+        "icon": "layui-icon layui-icon-face-smile",
+        "type": 1,
+        "openType": "_iframe",
+        "href": "view/system/offer"
+      },
+      {
+        "id": 52,
+        "title": "工价管理",
+        "icon": "layui-icon layui-icon-face-smile",
+        "type": 1,
+        "openType": "_iframe",
+        "href": "view/system/wages"
+      },
+      {
+        "id": 53,
+        "title": "工人管理",
+        "icon": "layui-icon layui-icon-face-smile",
+        "type": 1,
+        "openType": "_iframe",
+        "href": "view/system/worker"
+      },
+      {
+        "id": 54,
+        "title": "字典管理",
+        "icon": "layui-icon layui-icon-face-smile",
+        "type": 1,
+        "openType": "_iframe",
+        "href": "view/system/dictionaries"
+      }
+    ]
+  }
+]

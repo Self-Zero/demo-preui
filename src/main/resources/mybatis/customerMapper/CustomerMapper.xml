@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oac.project.system.customer.mapper.CustomerMapper">
+
+    <resultMap id="allCustomer" type="Customer">
+        <id property="customerId" column="customer_id"/>
+        <result property="customerName" column="customer_name"></result>
+        <result property="addressId" column="address_id"/>
+        <result property="phone" column="phone"/>
+        <result property="created" column="created"/>
+    </resultMap>
+
+    <!--List<Customer> getAllCustomer(Integer page, Integer limit, String customerName, String customerPhone);-->
+    <select id="getAllCustomer" resultMap="allCustomer">
+        SELECT customer_id,customer_name,address_id,phone,created FROM sys_customer
+        <if test="customerName == null and customerPhone == null">
+            ORDER BY created DESC
+        </if>
+        <if test="customerName == null and customerPhone != null">
+            WHERE phone LIKE #{customerPhone}"%" ORDER BY created DESC
+        </if>
+        <if test="customerName != null and customerPhone == null">
+            WHERE customer_name LIKE "%"#{customerName}"%" ORDER BY created DESC
+        </if>
+        <if test="customerName != null and customerPhone != null">
+            WHERE customer_name LIKE "%"#{customerName}"%" AND phone LIKE #{customerPhone}"%" ORDER BY created DESC
+        </if>
+        <if test="page != null and limit != ''">
+            LIMIT #{page},#{limit}
+        </if>
+    </select>
+
+    <!--Long getCount(String customerName, String customerPhone);-->
+    <select id="getCount" resultType="Long">
+
+        SELECT count(customer_id) FROM sys_customer
+        <if test="customerName != null and customerPhone == null">
+            WHERE customer_name LIKE "%"#{customerName}"%"
+        </if>
+        <if test="customerName == null and customerPhone != null">
+            WHERE phone LIKE #{customerPhone}"%"
+        </if>
+        <if test="customerName != null and customerPhone != null">
+            WHERE customer_name LIKE "%"#{customerName}"%" AND phone LIKE #{customerPhone}"%"
+        </if>
+    </select>
+
+    <!--Integer saveCustomerInfo(Customer customer);-->
+    <insert id="saveCustomerInfo" parameterType="Customer">
+        INSERT INTO sys_customer(customer_name,address_id,phone,created) value (#{customerName},#{addressId},#{phone},now())
+    </insert>
+
+    <!--Integer deleteCustomerInfo(Long customerId);-->
+    <delete id="deleteCustomerInfo" parameterType="Long">
+        DELETE FROM sys_customer WHERE customer_id = #{customerId}
+    </delete>
+
+    <!--Integer updateCustomerInfo(Customer customer);-->
+    <update id="updateCustomerInfo" parameterType="Customer">
+        UPDATE sys_customer SET customer_name=#{customerName},
+                                address_id=#{addressId},
+                                phone=#{phone}
+                                WHERE customer_id=#{customerId}
+    </update>
+
+</mapper>

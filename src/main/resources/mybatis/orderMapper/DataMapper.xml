@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oac.project.system.order.mapper.DataMapper">
+
+    <!-- Long getYearSumMoney(); 今年订单金额-->
+    <select id="getYearSumMoney" resultType="Long">
+        SELECT SUM(order_total) FROM sys_order_info WHERE YEAR(created)=YEAR(NOW());
+    </select>
+
+    <!-- ong getLastYearSumMoney(); 去年订单金额-->
+    <select id="getLastYearSumMoney" resultType="Long">
+        select SUM(order_total) from sys_order_info where year(created)=year(date_sub(now(),interval 1 year));
+    </select>
+
+    <!-- Long getMonthSumMoney(); 本月订单金额-->
+    <select id="getMonthSumMoney" resultType="Long">
+        select SUM(order_total) from sys_order_info where date_format(created,'%y-%m')=date_format(curdate(),'%y-%m')
+    </select>
+
+    <!-- Long getLstMonthSumMoney(); 上月订单金额-->
+    <select id="getLstMonthSumMoney" resultType="Long">
+        select SUM(order_total) from sys_order_info where date_format(created,'%y-%m')=date_format(date_sub(curdate(), interval 1 month),'%y-%m')
+    </select>
+
+    <!--Long getYearPaySumMoneyBoard();获取本年板材支出-->
+    <select id="getYearPaySumMoneyBoard" resultType="Long">
+        SELECT SUM(board_total) FROM sys_board_info WHERE YEAR(created)=YEAR(NOW());
+    </select>
+
+    <!--Long getLastYearPaySumMoneyBoard();获取去年板材支出-->
+    <select id="getLastYearPaySumMoneyBoard" resultType="Long">
+        select SUM(board_total) from sys_board_info where year(created)=year(date_sub(now(),interval 1 year));
+    </select>
+
+    <!--Long getYearPaySumMoneyBatten();获取本年方料支出-->
+    <select id="getYearPaySumMoneyBatten" resultType="Long">
+        SELECT SUM(batten_total) FROM sys_batten_info WHERE YEAR(created)=YEAR(NOW());
+    </select>
+
+    <!--Long getLastYearPaySumMoneyBatten();获取去年方料支出-->
+    <select id="getLastYearPaySumMoneyBatten" resultType="Long">
+        select SUM(batten_total) from sys_batten_info where year(created)=year(date_sub(now(),interval 1 year));
+    </select>
+
+    <!--Long getMonthPaySumMoneyBoard();获取本月板材支出-->
+    <select id="getMonthPaySumMoneyBoard" resultType="Long">
+        select SUM(board_total) from sys_board_info where date_format(created,'%y-%m')=date_format(curdate(),'%y-%m')
+    </select>
+
+    <!--Long getLastMonthPaySumMoneyBoard();获取上月板材支出-->
+    <select id="getLastMonthPaySumMoneyBoard" resultType="Long">
+        select SUM(board_total) from sys_board_info where date_format(created,'%y-%m')=date_format(date_sub(curdate(), interval 1 month),'%y-%m')
+    </select>
+
+    <!--Long getMonthPaySumMoneyBatten();获取本月方料支出-->
+    <select id="getMonthPaySumMoneyBatten" resultType="Long">
+        select SUM(batten_total) from sys_batten_info where date_format(created,'%y-%m')=date_format(curdate(),'%y-%m')
+    </select>
+
+    <!--Long getLastMonthPaySumMoneyBatten();获取上月方料支出-->
+    <select id="getLastMonthPaySumMoneyBatten" resultType="Long">
+        select SUM(batten_total) from sys_batten_info where date_format(created,'%y-%m')=date_format(date_sub(curdate(), interval 1 month),'%y-%m')
+    </select>
+
+    <!--Double getCountMoneyByMode(Long modeId);-->
+    <select id="getCountMoneyByMode" resultType="Long">
+        SELECT SUM(order_total) FROM sys_order_info WHERE mode_id = #{modeId}
+    </select>
+
+
+
+    <resultMap id="allData" type="MoneyUtil">
+        <result property="month" column="month"/>
+        <result property="money" column="IFNULL(b.counta,0)"/>
+    </resultMap>
+   <!--List<MoneyUtil> getMoneyByMonth(Integer[] month);-->
+    <select id="getMoneyByMonth" resultMap="allData">
+        select a.month,IFNULL(b.counta,0) from
+        (
+        select '01' AS month UNION
+        select '02' AS month UNION
+        select '03' AS month UNION
+        select '04' AS month UNION
+        select '05' AS month UNION
+        select '06' AS month UNION
+        select '07' AS month UNION
+        select '08' AS month UNION
+        select '09' AS month UNION
+        select '10' AS month UNION
+        select '11' AS month UNION
+        select '12' AS month
+        )a
+        left join(select month(created) as montha ,SUM(IFNULL(order_total,0) ) as counta from sys_order_info  WHERE YEAR(created)=YEAR(now()) group by month(created)) b on a.month = b.montha
+    </select>
+
+    <!--List<MoneyUtil> getBoardByMonth();-->
+    <select id="getBoardByMonth" resultMap="allData">
+        select a.month,IFNULL(b.counta,0) from
+        (
+        select '01' AS month UNION
+        select '02' AS month UNION
+        select '03' AS month UNION
+        select '04' AS month UNION
+        select '05' AS month UNION
+        select '06' AS month UNION
+        select '07' AS month UNION
+        select '08' AS month UNION
+        select '09' AS month UNION
+        select '10' AS month UNION
+        select '11' AS month UNION
+        select '12' AS month
+        )a
+        left join(select month(created) as montha ,SUM(IFNULL(board_total,0) ) as counta from sys_board_info  WHERE YEAR(created)=YEAR(now()) group by month(created)) b on a.month = b.montha
+    </select>
+
+    <!--List<MoneyUtil> getBattenByMonth();-->
+    <select id="getBattenByMonth" resultMap="allData">
+        select a.month,IFNULL(b.counta,0) from
+        (
+        select '01' AS month UNION
+        select '02' AS month UNION
+        select '03' AS month UNION
+        select '04' AS month UNION
+        select '05' AS month UNION
+        select '06' AS month UNION
+        select '07' AS month UNION
+        select '08' AS month UNION
+        select '09' AS month UNION
+        select '10' AS month UNION
+        select '11' AS month UNION
+        select '12' AS month
+        )a
+        left join(select month(created) as montha ,SUM(IFNULL(batten_total,0) ) as counta from sys_batten_info  WHERE YEAR(created)=YEAR(now()) group by month(created)) b on a.month = b.montha
+    </select>
+
+</mapper>

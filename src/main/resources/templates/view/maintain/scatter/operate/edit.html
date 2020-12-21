@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../../admin/css/pearCommon.css"/>
+    <link rel="stylesheet" href="../../../component/layui/css/layui.css"/>
+</head>
+<body>
+<form class="layui-form" action="">
+    <div class="mainBox">
+        <div class="main-container">
+            <div class="layui-form-item">
+                <label class="layui-form-label">木工</label>
+                <div class="layui-input-block">
+                    <input type="hidden" name="orderId" th:value="${orderId}">
+                    <select name="carpentryId" lay-verify="required">
+                        <option value="">--请选择--</option>
+                        <option th:each="carpentrys,userStat:${carpentry}" th:value="${carpentrys.workerId}"
+                                th:text="${carpentrys.workerName}"
+                                th:selected="${carpentrys.workerId}eq${orderDistributionById.getCarpentryId()}"></option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">底漆工</label>
+                <div class="layui-input-block">
+                    <select name="primerId" lay-verify="required">
+                        <option value="">--请选择--</option>
+                        <option th:each="primers,userStat:${primer}" th:value="${primers.workerId}"
+                                th:text="${primers.workerName}"
+                                th:selected="${primers.workerId}eq${orderDistributionById.getPrimerId()}"></option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">面漆工</label>
+                <div class="layui-input-block">
+                    <select name="painterId" lay-verify="required">
+                        <option value="">--请选择--</option>
+                        <option th:each="painters,userStat:${painter}" th:value="${painters.workerId}"
+                                th:text="${painters.workerName}"
+                                th:selected="${painters.workerId}eq${orderDistributionById.getPainterId()}"></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bottom">
+        <div class="button-container">
+            <button type="submit" id="tijiao" class="layui-btn layui-btn-normal layui-btn-sm" lay-submit="" lay-filter="order-distribution">
+                <i class="layui-icon layui-icon-ok"></i>
+                分配
+            </button>
+            <button type="reset" class="layui-btn layui-btn-primary layui-btn-sm">
+                <i class="layui-icon layui-icon-refresh"></i>
+                重置
+            </button>
+        </div>
+    </div>
+</form>
+<script src="../../../component/layui/layui.js"></script>
+<script>
+    layui.use(['form', 'jquery', 'laydate'], function () {
+        let form = layui.form;
+        let $ = layui.jquery;
+        form.on('submit(order-distribution)', function (obj) {
+            $.ajax({
+                url: '/system/distribution/update',
+                data: JSON.stringify(obj.field),
+                dataType: 'json',
+                contentType: 'application/json',
+                type: 'POST',
+                beforeSend:function(){
+                    $("#tijiao").attr("disabled","true");
+                },
+                success: function (result) {
+                    if (result.success) {
+                        layer.msg(result.msg, {icon: 1, time: 1000}, function () {
+                            parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+                            parent.layui.table.reload("distribution-table");
+                        });
+                    } else {
+                        layer.msg(result.msg, {icon: 3, time: 1000},function () {
+                            $("#tijiao").removeAttr("disabled");
+                        });
+                    }
+                }
+            })
+            return false;
+        });
+    })
+</script>
+<script>
+</script>
+</body>
+</html>

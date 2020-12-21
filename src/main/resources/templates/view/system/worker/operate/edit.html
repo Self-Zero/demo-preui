@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en"  xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../../admin/css/pearCommon.css" />
+    <link rel="stylesheet" href="../../../component/layui/css/layui.css" />
+</head>
+<body>
+<form class="layui-form" action="">
+    <div class="mainBox">
+        <div class="main-container">
+            <div class="main-container">
+                <div class="layui-form-item">
+                    <input type="hidden" name="workerId" th:value="${worker.workerId}">
+                    <label class="layui-form-label">工人姓名</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="workerName" th:value="${worker.workerName}" lay-verify="title" autocomplete="off" placeholder="请输入标题" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">工种类型</label>
+                    <div class="layui-input-block">
+                        <select name="workerType" lay-verify="required">
+                            <option value="" selected="selected">--请选择工种--</option>
+                            <option value="0" th:selected="${worker.workerType} eq 0">小工</option>
+                            <option value="1" th:selected="${worker.workerType} eq 1">木工</option>
+                            <option value="3" th:selected="${worker.workerType} eq 3">面漆工</option>
+                            <option value="2" th:selected="${worker.workerType} eq 2">底漆工</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">联系方式</label>
+                    <div class="layui-input-block">
+                        <input type="text"  name="workerPhone" th:value="${worker.workerPhone}" lay-verify="title" autocomplete="off" placeholder="请输入标题" class="layui-input">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bottom">
+        <div class="button-container">
+
+            <button type="submit" id="tijiao" class="layui-btn layui-btn-normal layui-btn-sm" lay-submit="" lay-filter="worker-edit">
+                <i class="layui-icon layui-icon-ok"></i>
+                修改
+            </button>
+
+            <span th:if="${worker.entryDate} == null">
+            <button type="submit" id="fuzhi" class="layui-btn layui-btn-normal layui-btn-sm" lay-submit="" lay-filter="worker-fuzhi">
+                <i class="layui-icon layui-icon-ok"></i>
+                复职
+            </button>
+            </span>
+            <span th:if="${worker.quitDate} == null">
+            <button type="submit" id="lizhi" class="layui-btn layui-btn-normal layui-btn-sm" lay-submit="" lay-filter="worker-lizhi">
+                <i class="layui-icon layui-icon-ok"></i>
+                离职
+            </button>
+            </span>
+        </div>
+    </div>
+</form>
+<script src="../../../component/layui/layui.js"></script>
+<script>
+layui.use(['form','jquery'],function(){
+    let form = layui.form;
+    let $ = layui.jquery;
+
+    /**
+     * 修改员工信息
+     */
+    form.on('submit(worker-edit)', function(data){
+        $.ajax({
+            url:'/system/worker/update',
+            data:JSON.stringify(data.field),
+            dataType:'json',
+            contentType:'application/json',
+            type:'post',
+            beforeSend:function(){
+                $("#tijiao").attr("disabled","true");
+            },
+            success:function(result){
+                if(result.success){
+                    layer.msg(result.msg,{icon:1,time:1000},function(){
+                        parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+                        parent.layui.table.reload("worker-table");
+                    });
+                }else{
+                    layer.msg(result.msg,{icon:2,time:1000},function () {
+                        $("#tijiao").removeAttr("disabled");
+                    });
+                }
+            }
+        })
+        return false;
+    });
+
+    /**
+     * 员工离职
+     */
+    form.on('submit(worker-lizhi)', function(data){
+        $.ajax({
+            url:'/system/worker/update/state',
+            data:JSON.stringify(data.field),
+            dataType:'json',
+            contentType:'application/json',
+            type:'post',
+            beforeSend:function(){
+                $("#lizhi").attr("disabled","true");
+            },
+            success:function(result){
+                if(result.success){
+                    layer.msg(result.msg,{icon:1,time:1000},function(){
+                        parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+                        parent.layui.table.reload("worker-table");
+                    });
+                }else{
+                    layer.msg(result.msg,{icon:2,time:1000},function () {
+                        $("#lizhi").removeAttr("disabled");
+                    });
+                }
+            }
+        })
+        return false;
+    });
+
+    /**
+     * 员工复职
+     */
+    form.on('submit(worker-fuzhi)', function(data){
+        $.ajax({
+            url:'/system/worker/update/come',
+            data:JSON.stringify(data.field),
+            dataType:'json',
+            contentType:'application/json',
+            type:'post',
+            beforeSend:function(){
+                $("#fuzhi").attr("disabled","true");
+            },
+            success:function(result){
+                if(result.success){
+                    layer.msg(result.msg,{icon:1,time:1000},function(){
+                        parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+                        parent.layui.table.reload("worker-table");
+                    });
+                }else{
+                    layer.msg(result.msg,{icon:2,time:1000},function () {
+                        $("#fuzhi").removeAttr("disabled");
+                    });
+                }
+            }
+        })
+        return false;
+    });
+})
+</script>
+<script>
+</script>
+</body>
+</html>
